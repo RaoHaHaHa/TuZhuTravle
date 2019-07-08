@@ -1,0 +1,166 @@
+<!-- 头部 start -->
+<script>
+    //分页的查询
+    function sarch(obj,pageNo){
+        /*window.location.href="route_list.html?test";*/
+        console.log(pageNo)
+        var val = $("#search").val();
+        console.log(obj+"其他值")
+        if(pageNo==undefined){
+            pageNo = 1;
+        }
+        if(obj=="" || obj==null){
+
+            console.log(val+"搜索框")
+
+            window.location.href="route_list.html?pwd="+val;
+
+        } else{
+
+            console.log(obj+"方法")
+            $.ajax({
+                type:"POST",
+                /*async:true,*/
+                url:"Result?pageNO="+pageNo,
+                datatype:"json",
+                data:JSON.stringify({"test":obj}),
+                contentType:"application/json",
+                success:function (data) {
+                    console.log(data)
+                    console.log(data.length < 0)
+                    var innerHTMLText1 = "";
+
+                    innerHTMLText1 += "<li><a href=\"index_qian.html\">首页</a></li>";
+                    /*innerHTMLText1+='<li><a href="xxx.html?pageNo='+(pageNo+1)+'">上一页</a></li>'*/
+                    if(data.hasPreviousPage){
+                        innerHTMLText1 += "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+obj+"\",("+(pageNo-1)+"))>上一页</a></li>"
+                    }
+
+                    /*$.each(data.list,function (index,item) {
+                        innerHTMLText1 += "<li><a href=\"javascript:void(0)\">1</a></li>";
+
+                    })*/
+                    for (var i = 1; i <=data.pages ; i++) {    //拼接分页信息
+                        if(i==pageNo){/*'<li ><a style="color: red" href="xxx.html?pageNo='+(i)+'">'+i+'</a></li>';*/
+                            innerHTMLText1 += "<li><a style='color: red' href=\"javascript:void(0)\" onclick=sarch(\""+data.list.rname+"\","+i+")>"+i+"</a></li>"
+                        }
+                        else{
+                            innerHTMLText1 += "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+obj+"\","+i+")>"+i+"</a></li>"
+                        }
+                    }/*'<li ><a  href="xxx.html?pageNo='+(i)+'">'+i+'</a></li>';*/
+                    if(data.hasNextPage) {
+                        innerHTMLText1+= "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+obj+"\",("+(pageNo+1)+"))>下一页</a></li>"
+                    }
+                    innerHTMLText1 += "<li class=\"threeword\"><a href=\"javascript:void(0)\" onclick=sarch(\""+obj+"\",("+data.lastPage+"))>末页</a></li>"
+                    var innerHTMLText = "";
+
+                    if(data.list.length < 0 == true){
+                        innerHTMLText += "<p>没有数据</p>"
+                    }else {
+                        $.each(data.list,function (index,item) {
+                            var List = item;
+                            innerHTMLText += "<li>"
+                            innerHTMLText += "<div class=\"img\"><img src=\"images/04-search_03.jpg\" alt=\"\"></div>"
+                            innerHTMLText += "<div class=\"text1\">"
+                            innerHTMLText += "<p>"+item.rname+"</p>"
+                            innerHTMLText += "<br/>"
+                            innerHTMLText += " <p>"+item.rname+"</p>"
+                            innerHTMLText += "</div>"
+                            innerHTMLText += "<div class=\"price\">"
+                            innerHTMLText += "<p class=\"price_num\">"
+                            innerHTMLText += "<span>&yen;</span>"
+                            innerHTMLText += "<span>"+item.price+"</span>"
+                            innerHTMLText += "<span>起</span>"
+                            innerHTMLText += "</p>"
+                            innerHTMLText += "<p><a href=\"route_detail.html?id="+item.rid+"\">查看详情</a></p>"
+                            /*innerHTMLText += "<p><a href=\"route_detail.html?value=海\">查看详情</a></p>"*/
+                            innerHTMLText += "</div>"
+                            innerHTMLText += "</li>"
+                        })
+                    }
+
+                    $("#totalpages").html(data.pages);
+                    $("#totalpagesNum").html(data.total);
+
+                    $("#pageN").html(innerHTMLText1)
+                    $("#ValueInsert").html(innerHTMLText);
+
+                },
+                error:function (errorMsg) {
+                    console.log(errorMsg)
+                }
+            })
+        }
+
+    }
+    //用户名显示
+    $(function () {
+        //查询用户信息
+        $.get("user/findOne",{},function (data) {
+            if(data.username!=null||data.username!=undefined){
+                var msg = "欢迎登陆，"+data.username;
+                $("#span_username").html(msg);
+                $("#loginshow").show();
+            }else{
+                $("#unloginshow").show();
+            }
+        });
+    });
+
+</script>
+    <header id="header">
+        <div class="top_banner" >
+            <img src="images/top_banner.jpg" alt="">
+        </div>
+        <div class="shortcut" >
+            <!-- 未登录状态  -->
+            <div class="login_out" id="unloginshow" hidden="hidden">
+                <a href="login_qian.html">登录</a>
+                <a href="register.html">注册</a>
+            </div>
+            <!-- 登录状态  -->
+            <div class="login" hidden="hidden" id="loginshow">
+            	
+                <span id="span_username"></span>
+                <a href="myfavorite.html" class="collection">我的计划</a>
+                <a href="user/userout">退出</a>
+            </div>
+        </div>
+        <div class="header_wrap">
+            <div class="topbar">
+                <div class="logo">
+                    <a href="/"><img src="images/logo.jpg" alt=""></a>
+                </div>
+                <div class="search">
+                    <input name="" type="text" placeholder="请输入路线名称" class="search_input" autocomplete="off" id="search">
+                    <a href="javascript:sarch();" class="search-button" id="oncheak">搜索</a>
+                </div>
+                <div class="hottel">
+                    <div class="hot_pic">
+                        <img src="images/hot_tel.jpg" alt="">
+                    </div>
+                    <div class="hot_tel">
+                        <p class="hot_time">客服热线(9:00-6:00)</p>
+                        <p class="hot_num">400-618-9090</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- 头部 end -->
+     <!-- 首页导航 -->
+    <div class="navitem">
+        <ul class="nav">
+            <li class="nav-active"><a href="index_qian.html">首页</a></li>
+            <li><a href="route_list.html">门票</a></li>
+            <li><a href="route_list.html">酒店</a></li>
+            <li><a href="route_list.html">香港车票</a></li>
+            <li><a href="route_list.html">出境游</a></li>
+            <li><a href="route_list.html">国内游</a></li>
+            <li><a href="route_list.html">港澳游</a></li>
+            <li><a href="route_list.html">抱团定制</a></li>
+            <li><a href="route_list.html">全球自由行</a></li>
+            <li><a href="favoriterank.html">收藏排行榜</a></li>
+        </ul>
+    </div>
+    

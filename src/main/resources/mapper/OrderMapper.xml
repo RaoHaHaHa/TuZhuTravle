@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.OrderMapper">
+
+    <!--通过用户ID查询用户订单-->
+    <select id="findUserOrder" parameterType="Long" resultType="com.qf.travel.dto.OrderDto">
+        SELECT o.*,a.`introduce`,a.`photo_src`,ad.`goto_time`,ad.`goback_time`, IF(NOW() &lt; ad.`goto_time`,"待使用",IF(NOW() &lt; goback_time,"使用中","已完成")) stat FROM t_order o
+        INNER JOIN t_attractions a
+        INNER JOIN t_attraction_details ad
+        ON o.product_id = a.product_id AND a.`product_id`=ad.`product_id` AND o.`user_id`=#{userId}
+    </select>
+
+    <!--通过订单id 删除用户订单-->
+    <delete id="deleteOrder" parameterType="Integer" >
+        delete from t_order where t_order.`order_id`=#{order_id}
+    </delete>
+
+    <!--向订单表插入一条数据-->
+    <insert id="insertOneOrder" parameterType="Order">
+        insert into t_order(<include refid="addVo"/>) values(<include refid="insertVal"/>)
+    </insert>
+
+    <!--对应的表字段-->
+    <sql id="addVo" >
+        <trim suffixOverrides=",">
+            <if test="user_id != null and user_id != ''">
+                user_id,
+            </if>
+            <if test="order_id != null and order_id != ''">
+                order_id,
+            </if>
+            <if test="product_id != null and product_id != ''">
+                product_id,
+            </if>
+            <if test="price != null and price != ''">
+                price,
+            </if>
+            <if test="num != null and num != ''">
+                num,
+            </if>
+            <if test="order_type != null and order_type != ''">
+                order_type,
+            </if>
+            <if test="generate_date != null and generate_date != ''">
+                generate_date,
+            </if>
+            <if test="last_date != null and last_date != ''">
+                last_date,
+            </if>
+            <if test="pay_type != null and  pay_type != ''">
+                pay_type,
+            </if>
+        </trim>
+    </sql>
+
+    <!--对应的插入表字段-->
+    <sql id="insertVal" >
+        <trim suffixOverrides=",">
+            <if test="user_id != null and user_id != ''">
+                #{user_id},
+            </if>
+            <if test="order_id != null and order_id != ''">
+                #{order_id},
+            </if>
+            <if test="product_id != null and product_id != ''">
+                #{product_id},
+            </if>
+            <if test="price != null and price != ''">
+                #{price},
+            </if>
+            <if test="num != null and num != ''">
+                #{num},
+            </if>
+            <if test="order_type != null and order_type != ''">
+                #{order_type},
+            </if>
+            <if test="generate_date != null and generate_date != ''">
+                #{generate_date},
+            </if>
+            <if test="last_date != null and last_date != ''">
+                #{last_date},
+            </if>
+            <if test="pay_type != null and  pay_type != ''">
+                #{pay_type},
+            </if>
+        </trim>
+    </sql>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.AttractionMapper">
+
+
+
+    <!--显示所有旅游景点 -->
+    <select id="listAllAttraction" parameterType="com.qf.travel.vo.AttractionVo" resultType="com.qf.travel.vo.AttractionVo">
+        SELECT product_id,photo_src,order_type,introduce,price FROM t_attractions where flag=1
+    </select>
+
+    <!-- 增加旅游景点 -->
+    <insert id="addAttraction" parameterType="com.qf.travel.vo.AttractionVo">
+    insert into t_attractions(product_id,photo_src,order_type,introduce,price)
+    values(default,#{photo_src},#{order_type},#{introduce},#{price})
+    </insert>
+
+    <!-- 删除旅游景点 -->
+    <update id="delAttraction" parameterType="com.qf.travel.vo.AttractionVo">
+    update t_attractions set flag = 0 where product_id = #{product_id}
+    </update>
+
+    <!--批量删除旅游景点-->
+    <update id="delAttractions" parameterType="com.qf.travel.vo.AttractionVo">
+        update t_attractions set flag = 0 where product_id in
+        <foreach collection="ids" item="product_id" open="(" close=")" separator=",">
+            #{product_id}
+        </foreach>
+    </update>
+
+    <!-- 修改旅游景点 -->
+    <update id="updateAttraction" parameterType="com.qf.travel.vo.AttractionVo">
+        UPDATE t_attractions SET photo_src = #{photo_src}, order_type = #{order_type},
+        introduce = #{introduce},price = #{price}
+        WHERE product_id = #{product_id}
+    </update>
+
+    <!--显示单个 -->
+    <select id="SelectById" parameterType="com.qf.travel.vo.AttractionVo" resultType="com.qf.travel.vo.AttractionVo">
+        SELECT product_id,photo_src,order_type,introduce,price FROM t_attractions where product_id=#{product_id} and flag=1
+    </select>
+
+</mapper>

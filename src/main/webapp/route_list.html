@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>黑马旅游-搜索</title>
+    <script charset="utf-8" src="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/v.js.下载"></script><script src="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/hm.js.下载"></script><script type="text/javascript" src="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/config"></script>
+
+    <link href="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/TN_date.css" rel="stylesheet">
+    <link href="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/classificationpage.css" rel="stylesheet">
+    <link href="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/searchlist.css" rel="stylesheet">
+    <link href="./北京旅游线路搜索_酒店搜索_门票搜索_旅游搜索_途牛旅游网_files/common_foot_v3.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="flink/css/common.css">
+    <link rel="stylesheet" href="flink/css/search.css">
+    <script src="flink/js/jquery-3.3.1.js"></script>
+    <script>
+        //获得页面的页码初始值为1 0、
+        //首页跳转的值
+        var pageNo = 1;
+        console.log(window.location.search.split('='))
+        var indexSearch =window.location.search.split('=')[1];;
+
+        //URL地址中文解码器
+        /*decodeURIComponent()*/
+        console.log(decodeURIComponent(indexSearch))
+
+        /*if(sessionStorage.getItem("isReload")){*/
+        window.onload=function (ev) {
+            console.log("页面被刷新");
+            $.ajax({
+                type:"POST",
+                /*async:true,*/
+                url:"city",
+                datatype:"json",
+                contentType:"application/json",
+                success:function (data) {
+                    /*console.log(data);*/
+                    var innerHTMLText = "";
+                    $.each(data,function (index,item) {
+                        var List = item;
+                        innerHTMLText += "<li class=\"filter_input\">"
+                        innerHTMLText += "<input type=\"checkbox\" value="+item.cityName+" name=\"depart_cities\">"
+                        innerHTMLText += "<a href=\"javascript:void(0)\" rel=\"nofollow\" onclick='sarch(\""+item.city.substr(0,2)+"\","+decodeURIComponent(pageNo)+")'>"+item.city
+                        innerHTMLText += "</a>"+" </li>";
+                    })
+                    /*console.log(innerHTMLText)*/
+                    $("#insert").html(innerHTMLText);
+                },
+                error:function (errorMsg) {
+                    console.log(errorMsg)
+                }
+            })
+            //推荐-无数据
+            $.ajax({
+                type:"POST",
+                /*async:true,*/
+                url:"Rec",
+                datatype:"json",
+                contentType:"application/json",
+                success:function (data) {
+                    /*console.log(data);*/
+                    var innerHTMLText = "";
+                    var innerHTMLText1 = "";
+                    $.each(data,function (index,item) {
+                        var List = item;
+                        innerHTMLText += "<li>";
+                        innerHTMLText += "<div>";
+                        innerHTMLText += "<span class=\"select_state\"></span>";
+                        innerHTMLText += "<a class=\"tuijian_item\"  href=\"javascript:void(0);\" onclick=sarch(\""+item.test+"\","+pageNo+")>";
+                        innerHTMLText += "<p class=\"p1\" id=\"selectOne\">"+item.test+"</p>";
+                        innerHTMLText += "</a>";
+                        innerHTMLText += "</div>";
+                        innerHTMLText += "</li>";
+                    })
+                    $.each(data,function (index1,item2) {
+                        innerHTMLText1 += "<li>";
+                        innerHTMLText1 += "<div class=\"left\"><img src=\"images/04-search_09.jpg\" alt=\"\"></div>";
+                        innerHTMLText1 += "<div class=\"right\">";
+                        innerHTMLText1 += "<p>"+item2.test+"</p>";
+                        innerHTMLText1 += "<p>网付价<span>&yen;<span>899</span>起</span>";
+                        innerHTMLText1 += "</p>";
+                        innerHTMLText1 += "</div>";
+                        innerHTMLText1 += "</li>";
+                    })
+                    /*console.log(innerHTMLText)*/
+                    $("#inserthot").html(innerHTMLText1)
+                    $("#insertRec").html(innerHTMLText);
+                },
+                error:function (errorMsg) {
+                    console.log(errorMsg)
+                }
+            })
+
+            //游玩路线-无数据
+            $.ajax({
+                type:"POST",
+                /*async:true,*/
+                url:"Route",
+                datatype:"json",
+                contentType:"application/json",
+                success:function (data) {
+                    /*console.log(data);*/
+                    var innerHTMLText = "";
+                    $.each(data,function (index,item) {
+                        var List = item;
+                        innerHTMLText += "<li class=\"filter_input\">";
+                        innerHTMLText += "<input type=\"checkbox\" value=\"33\" name=\"play_route_type_id\" id=\"input1\">";
+                        innerHTMLText += "<a href=\"javascript:void(0)\" rel=\"nofollow\" id=\"text1\" onclick=sarch(\""+item.route.substr(0,2)+"\","+pageNo+")>"+item.route+"";
+                        innerHTMLText += "<span class=\"choice\">（xx%选择）</span>";
+                        innerHTMLText += "</a>";
+                        innerHTMLText += "</li>";
+                    })
+                    /*console.log(innerHTMLText)*/
+                    $("#insertRoute").html(innerHTMLText);
+                },
+                error:function (errorMsg) {
+                    console.log(errorMsg)
+                }
+            })
+            if(indexSearch == "" || indexSearch == undefined){
+                indexSearch = "海"
+            }
+            //搜索框分页
+            $.ajax({
+                type:"POST",
+                /*async:true,*/
+                url:"Result?pageNO=1",
+                datatype:"json",
+
+                data:JSON.stringify({"test":decodeURIComponent(indexSearch)}),
+                contentType:"application/json",
+                success:function (data) {
+                    console.log(data)
+                    /*console.log(data)*/
+                    var innerHTMLText = "";
+                    var innerHTMLText1 = "";
+
+                    innerHTMLText1 += "<li><a href=\"index_qian.html\">首页</a></li>";
+                    /*innerHTMLText1+='<li><a href="xxx.html?pageNo='+(pageNo+1)+'">上一页</a></li>'*/
+                    if(data.hasNextPage) {
+                        innerHTMLText1+= "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+decodeURIComponent(indexSearch)+"\",("+(pageNo+1)+"))>上一页</a></li>"
+                    }
+                    /*$.each(data.list,function (index,item) {
+                        innerHTMLText1 += "<li><a href=\"javascript:void(0)\">1</a></li>";
+
+                    })*/
+                    for (var i = 1; i <=data.pages ; i++) {    //拼接分页信息
+                        if(i==pageNo){/*'<li ><a style="color: red" href="xxx.html?pageNo='+(i)+'">'+i+'</a></li>';*/
+                            innerHTMLText1 += "<li><a style='color: red' href=\"javascript:void(0)\" onclick=sarch(\""+decodeURIComponent(indexSearch)+"\","+i+")>"+i+"</a></li>"
+                        }
+                        else{
+                            innerHTMLText1 += "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+decodeURIComponent(indexSearch)+"\","+i+")>"+i+"</a></li>"
+                        }
+                    }/*'<li ><a  href="xxx.html?pageNo='+(i)+'">'+i+'</a></li>';*/
+                    if(data.hasPreviousPage){
+                        innerHTMLText1 += "<li><a href=\"javascript:void(0)\" onclick=sarch(\""+decodeURIComponent(indexSearch)+"\",("+(pageNo-1)+"))>下一页</a></li>"
+                    }
+                    innerHTMLText1 += "<li class=\"threeword\"><a href=\"javascript:void(0)\" onclick=sarch(\""+decodeURIComponent(indexSearch)+"\",data.lastPage)>末页</a></li>"
+                    $.each(data.list,function (index,item) {
+                        var List = item;
+                        innerHTMLText += "<li>"
+                        /*innerHTMLText += "<div class=\"img\"><img src=\"images/"+itemrouteImgList+".jpg\" alt=\"\"></div>"*/
+                        innerHTMLText += "<div class=\"img\"><img src=\"images/04-search_03.jpg\" alt=\"\"></div>"
+                        innerHTMLText += "<div class=\"text1\">"
+                        innerHTMLText += "<p>"+item.rname+"</p>"
+                        innerHTMLText += "<br/>"
+                        innerHTMLText += " <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>"
+                        innerHTMLText += "</div>"
+                        innerHTMLText += "<div class=\"price\">"
+                        innerHTMLText += "<p class=\"price_num\">"
+                        innerHTMLText += "<span>&yen;</span>"
+                        innerHTMLText += "<span>"+item.price+"</span>"
+                        innerHTMLText += "<span>起</span>"
+                        innerHTMLText += "</p>"
+                        innerHTMLText += "<p><a href=\"route_detail.html?id="+item.rid+"\">查看详情</a></p>"
+                        innerHTMLText += "</div>"/*"<p><a href=\"route_detail.html?test=\""+item.rname.substr(0,3)+"\"\">查看详情</a></p>"*/
+                        innerHTMLText += "</li>"
+                    })
+                    $("#totalpages").html(data.pages);
+                    $("#totalpagesNum").html(data.total);
+                    $("#pageN").html(innerHTMLText1);
+                    $("#ValueInsert").html(innerHTMLText);
+                },
+                error:function (errorMsg) {
+                    console.log(errorMsg)
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<!--引入头部-->
+<div id="header"></div>
+    <div class="page_one">
+        <div class="contant">
+            <div class="cate_nav">
+                <div class="prop_list prop-list-new clearfix">
+                    <div class="prop_item needed_filter recommended-selection ">
+                        <dl class="clearfix">
+                            <dt><!--jhocc-->
+                                <span class="list_gaiban_icon x_tuijian"></span>热门推荐
+                            </dt>
+                            <dd class="oneLine">
+                                <ul class="list_3" id="insertRec">
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                                <p class="p1" id="selectOne">牛人专线</p>
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                                <p class="p1" id="selectOne1">牛人专线</p>
+                                            </a>
+                                        </div>
+                                    </li><li>
+                                    <div>
+                                        <span class="select_state"></span>
+                                        <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                            <p class="p1" id="selectOne2">天堂地狱一日游</p>
+                                        </a>
+                                    </div>
+                                </li><li>
+                                    <div>
+                                        <span class="select_state"></span>
+                                        <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                            <p class="p1" id="selectOne3">爱情海和跳海</p>
+                                        </a>
+                                    </div>
+                                </li><li>
+                                    <div>
+                                        <span class="select_state"></span>
+                                        <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                            <p class="p1" id="selectOne4">广州+东莞</p>
+                                        </a>
+                                    </div>
+                                </li><li>
+                                    <div>
+                                        <span class="select_state"></span>
+                                        <a class="tuijian_item"  href="javascript:void(0);" onclick=addValue()>
+                                            <p class="p1" id="selectOne5">深圳+惠州</p>
+                                        </a>
+                                    </div>
+                                </li>
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x323248293">
+                                                <p class="p1">牛人严选</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x41663">
+                                                <p class="p1">经典5日</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li class="">
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x41664">
+                                                <p class="p1">纯玩无购物</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li class="">
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x41665">
+                                                <p class="p1">故宫天安门</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x300231628">
+                                                <p class="p1">王府井</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x41666">
+                                                <p class="p1">八达岭+颐和园+北大清华</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li class="">
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x300231627">
+                                                <p class="p1">八达岭+颐和园+故宫</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x41667">
+                                                <p class="p1">乐开花爸妈游</p>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <span class="select_state"></span>
+                                            <a class="tuijian_item" href="http://s.tuniu.com/search_complex/whole-cs-0-%E5%8C%97%E4%BA%AC/list-x300231629">
+                                                <p class="p1">清华大学</p>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="clearfix prop_item needed_filter mult_select isOneLine hasMoreChoice  " >
+                        <dl class="clearfix poi_day_selecter xc_days">
+                            <dt><span class="list_gaiban_icon x_city"></span>出发城市</dt>
+                            <dd class="onlyOneLine">
+                                <ul class="list_3 duration_select isMore " id="insert">
+                                    <li class="hide">
+                                        <a class="input_hide cur_city" href="javascript:void(0);" onclick="" rel="nofollow">全部</a>
+                                    </li>
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="1502" name="depart_cities">
+
+                                        <a href="/search_complex/whole-cs-0-美国/list-l1502" rel="nofollow">长沙
+                                            <span class="choice">（75%选择）</span>
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input ">
+                                        <input type="checkbox" value="1402" name="depart_cities">
+
+                                        <a href="/search_complex/whole-cs-0-美国/list-l1402" rel="nofollow">武汉
+                                            <span class="choice">（7%选择）</span>
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input ">
+                                        <input type="checkbox" value="602" name="depart_cities">
+
+                                        <a href="/search_complex/whole-cs-0-美国/list-l602" rel="nofollow">广州
+                                            <span class="choice">（5%选择）</span>
+                                        </a>
+
+                                    </li>
+                                </ul>
+
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="clearfix prop_item needed_filter mult_select isOneLine hasMoreChoice  ">
+                        <dl class="clearfix poi_day_selecter xc_days">
+                            <dt ><span class="list_gaiban_icon x_line" ></span><label id="parent1">游玩线路</label></dt>
+                            <dd class="onlyOneLine">
+                                <ul class="list_3 duration_select isMore" id="insertRoute">
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="33" name="play_route_type_id" id="input1">
+
+                                        <a href="javascript:void(0)" rel="nofollow" id="text1" >普吉岛+PP岛
+                                            <span class="choice">（61%选择）</span>
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="32" name="play_route_type_id">
+
+                                        <a href="/search_complex/whole-cs-0-普吉岛/list-c32" rel="nofollow">普吉岛一地
+                                            <span class="choice">（15%选择）</span>
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="34" name="play_route_type_id">
+
+                                        <a href="/search_complex/whole-cs-0-普吉岛/list-c34" rel="nofollow">普吉岛+皇帝岛
+                                            <span class="choice">（11%选择）</span>
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="411" name="play_route_type_id">
+
+                                        <a href="/search_complex/whole-cs-0-普吉岛/list-c411" rel="nofollow">曼谷+芭提雅+普吉岛
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="4959" name="play_route_type_id">
+
+                                        <a href="/search_complex/whole-cs-0-普吉岛/list-c4959" rel="nofollow">芭东海滩
+                                        </a>
+
+                                    </li>
+
+                                    <li class="filter_input">
+                                        <input type="checkbox" value="409" name="play_route_type_id">
+
+                                        <a href="/search_complex/whole-cs-0-普吉岛/list-c409" rel="nofollow">曼谷+普吉岛
+                                        </a>
+
+                                    </li>
+
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>
+                  <!--  <div class="clearfix prop_item chooseitem" id="hadSelected" HIDDEN="hidden" >
+                        <dl class="clearfix poi_selecters">
+                            <dt><span class="list_gaiban_icon x_select"></span>您已选择</dt>
+                            <dd>
+                                <ul class="had_select" id="insert1">
+
+                                   &lt;!&ndash;<<input class="none s_checked" type="checkbox" name="play_route_type_id" value="33" checked="checked">
+                                    <li name="play_route_type_id">
+                                        <span class="select_log">游玩线路</span>
+                                        <a href="javascript:void(0)" rel="nofollow">普吉岛+PP岛<span class="deltab" data-href="/search_complex/whole-cs-0-普吉岛"></span></a>
+                                    </li>&ndash;&gt;
+                                    &lt;!&ndash;<li>
+                                        <a class="close-all J_clear_class_all" href="javascript:void(0)" rel="nofollow">清除</a>
+                                    </li>&ndash;&gt;
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>-->
+                </div>
+               <!-- 后台表单提交
+                <form id="subForm" action="/test" method="post">
+                    <input type="hidden" id="test1" value="dada" name="aaa">
+                    <input type="hidden" id="test2" value="adad" name="bbb">
+                </form>-->
+            </div>
+            <div class="crumbs">
+                <img src="images/search.png" alt="">
+                <p>黑马旅行><span>搜索结果</span></p>
+            </div>
+            <div class="xinxi clearfix">
+                <div class="left">
+                    <div class="header">
+                        <span>商品信息</span>
+                        <span class="jg">价格</span>
+                    </div>
+                    <ul id="ValueInsert">
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>【减100元 含除夕/春节出发】广州增城三英温泉度假酒店/自由行套票</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html?value=海">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>浪花朵朵旅行普吉岛丛林飞跃空中飞人探险游中文服务泰国旅游</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>899</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>黑妞皇家旅行普吉岛攀牙湾大船星光之旅皮划艇日落休闲特色体验</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>999</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html?test=">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>浪花朵朵旅行普吉岛皇帝岛珊瑚岛香蕉船拖拽伞水上项目</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>99</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>环游记 泰国清迈Lila massage女子监狱spa 丽菈泰式按摩马杀鸡</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>199</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>【减100元 含除夕/春节出发】广州增城三英温泉度假酒店/自由行套票</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>899</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html" >查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>【减100元 含除夕/春节出发】广州增城三英温泉度假酒店/自由行套票</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>1199</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                            <div class="text1">
+                                <p>泰国芭提雅三合一日游芭提雅蒂芬妮人妖秀成人门票bigeye含接送</p>
+                                <br/>
+                                <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>1589</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="route_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="page_num_inf">
+                        <i></i> 共
+                        <span id="totalpages">12</span>页<span id="totalpagesNum">1213</span>条
+                    </div>
+                    <div class="pageNum">
+                        <ul id="pageN">
+                            <li><a href="index_qian.html">首页</a></li>
+                            <li class="threeword"><a href="#">上一页</a></li>
+                            <li><a href="#">1</a></li>
+                           <!-- <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li><a href="#">7</a></li>
+                            <li><a href="#">8</a></li>
+                            <li><a href="#">9</a></li>
+                            <li><a href="#">10</a></li>-->
+                            <li class="threeword"><a href="javascript:;">下一页</a></li>
+                            <li class="threeword"><a href="javascript:;">末页</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="top">
+                        <div class="hot">HOT</div>
+                        <span>热门推荐</span>
+                    </div>
+                    <ul id="inserthot">
+                        <li>
+                            <div class="left"><img src="images/04-search_09.jpg" alt=""></div>
+                            <div class="right">
+                                <p>清远新银盏温泉度假村酒店/自由行套...</p>
+                                <p>网付价<span>&yen;<span>899</span>起</span>
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left"><img src="images/04-search_09.jpg" alt=""></div>
+                            <div class="right">
+                                <p>清远新银盏温泉度假村酒店/自由行套...</p>
+                                <p>网付价<span>&yen;<span>899</span>起</span>
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left"><img src="images/04-search_09.jpg" alt=""></div>
+                            <div class="right">
+                                <p>清远新银盏温泉度假村酒店/自由行套...</p>
+                                <p>网付价<span>&yen;<span>899</span>起</span>
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left"><img src="images/04-search_09.jpg" alt=""></div>
+                            <div class="right">
+                                <p>清远新银盏温泉度假村酒店/自由行套...</p>
+                                <p>网付价<span>&yen;<span>899</span>起</span>
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left"><img src="images/04-search_09.jpg" alt=""></div>
+                            <div class="right">
+                                <p>清远新银盏温泉度假村酒店/自由行套...</p>
+                                <p>网付价<span>&yen;<span>899</span>起</span>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--引入头部-->
+    <div id="footer"></div>
+    <!--导入布局js，共享header和footer-->
+    <script type="text/javascript" src="flink/js/include.js">
+    </script>
+</body>
+
+</html>

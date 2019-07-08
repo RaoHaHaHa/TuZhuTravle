@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.SearchMapper">
+
+    <resultMap id="iRoute" type="com.qf.travel.entity.Route">
+        <id property="rid" column="id"></id>
+        <result property="rname" column="introduce"></result>
+        <result property="price" column="price"></result>
+    </resultMap>
+    <select id="findAllCity" resultType="com.qf.travel.controller.po.City">
+        SELECT td.`city` cityName,CONCAT(td.`city`,' ',ROUND((COUNT(td.`city`)/(SELECT COUNT(*) FROM  t_hotel_info))*100,0),'%选择') city FROM t_hotel_info td GROUP BY td.`city`
+    </select>
+    <select id="findAllRecommendation" resultType="com.qf.travel.controller.po.Recommendation">
+        SELECT  recommend test FROM t_attractions WHERE recommend != "null"
+    </select>
+    <select id="findAllPlayRoute" resultType="com.qf.travel.controller.po.PlayRoute">
+          SELECT * FROM playRoute
+    </select>
+    <select id="findValue" resultMap="iRoute" parameterType="java.lang.String">
+        SELECT d.`id`,d.`introduce`,d.`order_type`,d.`price`,ta.`photo_src_num` FROM t_attractions d LEFT JOIN t_attractions_details ta
+        ON d.`product_id` = ta.`product_id` WHERE
+        d.`introduce` LIKE  CONCAT('%',#{name},'%')
+        LIMIT 0,1
+    </select>
+    <select id="findValuetwo" resultMap="iRoute" parameterType="java.lang.String">
+        SELECT d.`id`,d.`introduce`,d.`order_type`,d.`price` FROM t_attractions d  WHERE
+        d.`introduce` LIKE  CONCAT('%',#{name},'%')
+    </select>
+   <!-- <select id="findValuetwo" resultMap="iRoute" parameterType="java.lang.String">
+        SELECT d.`id`,d.`introduce`,d.`order_type`,d.`price`,ta.`photo_src_num` FROM t_attractions d LEFT JOIN t_attractions_details ta
+        ON d.`product_id` = ta.`product_id` WHERE
+        d.`introduce` LIKE  CONCAT('%',#{name},'%')
+    </select>-->
+</mapper>

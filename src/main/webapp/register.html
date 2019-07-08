@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>途猪旅游注册</title>
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		  name="viewport">
+	<meta content="telephone=no" name="format-detection">
+	<meta content="webkit" name="renderer">
+	<meta content="no-siteapp" http-equiv="Cache-Control"/>
+
+	<link href="flink/css/amazeui.min.css" rel="stylesheet"/>
+	<link href="flink/css/dlstyle.css" rel="stylesheet" type="text/css">
+	<script src="flink/js/regist/js/jquery.min.js"></script>
+	<script src="flink/js/regist/js/amazeui.min.js"></script>
+	<script src="flink/js/jquery-3.3.1.js"></script>
+</head>
+
+<body>
+
+<div class="login-boxtitle">
+	<a href="index_qian.html"><img alt="" src="images/tuzhulog.png"/></a>
+</div>
+
+<div class="res-banner">
+	<div class="res-main">
+		<div class="login-banner-bg"><span></span><img src="images/denglutu.png"/></div>
+		<div class="login-box">
+
+			<div class="am-tabs" id="doc-my-tabs">
+				<ul class="am-tabs-nav am-nav am-nav-tabs am-nav-justify">
+					<li class="am-active"  onclick="emailRegisterbot()"><a href="#register.html">邮箱注册</a></li>
+					<li class="am-active"  onclick="phoneRegisterbot()"><a href="#register2.html">手机号注册</a></li>
+				</ul>
+
+				<div class="am-tabs-bd ">
+					<div class="am-tab-panel am-active" id="emailregistbot">
+						<form id="emailRegisterForm" method="post" onsubmit="return emailRegister(this)">
+
+							<div class="user-email">
+								<label for="email"><i class="am-icon-envelope-o"></i></label>
+								<input id="email" name="account" placeholder="请输入邮箱账号" required type="email">
+							</div>
+							<div class="verification">
+								<label for="emailCode"><i class="am-icon-code-fork"></i></label>
+								<input id="emailCode" name="" placeholder="请输入验证码" required type="tel">
+								<a class="btn" href="javascript:void(0);" id="sendMobileCode"
+								   onClick="sendEmailCode();">
+									<span class="dyMobileButton" id="getEmailBtn">获取</span></a>
+							</div>
+							<div class="user-pass">
+								<label for="username1"><i class="am-icon-user"></i></label>
+								<input id="username1" name="username" placeholder="设置登陆名" type="username1">
+							</div>
+							<div class="user-pass">
+								<label for="password"><i class="am-icon-lock"></i></label>
+								<input id="password1" name="password" placeholder="设置密码" required type="password">
+							</div>
+							<div class="user-pass">
+								<label for="passwordRepeat"><i class="am-icon-lock"></i></label>
+								<input id="passwordRepeat1" name="" placeholder="确认密码" required type="password">
+							</div>
+						</form>
+						<div id="emailHintDiv" style="position: absolute;right: 20px;top: 45%;display: none;color: red">
+							<span id="emailHintSpan" style="font-size: 12px">验证码已经发送至邮箱:</span>
+						</div>
+
+						<div class="login-links">
+							<label for="reader-me">
+								<input id="reader-me" type="checkbox"> 点击表示您同意商城《服务协议》
+							</label>
+						</div>
+						<div class="am-cf">
+							<input class="am-btn am-btn-primary am-btn-sm am-fl" id="emailRegisterBtn" name=""
+								   onclick="emailRegister()" type="submit"
+								   value="注册">
+						</div>
+
+					</div>
+
+					<div class="am-tab-panel " id="phoneregistbot">
+						<form id="phoneRegisterForm" method="post" onsubmit="return phoneRegister(this)">
+							<div class="user-phone">
+								<label for="phone"><i class="am-icon-mobile-phone am-icon-md"></i></label>
+								<input id="phone" name="registPhone" placeholder="请输入手机号" type="tel">
+							</div>
+							<div class="verification">
+								<label for="phoneCode"><i class="am-icon-code-fork"></i></label>
+								<input id="phoneCode" name="phoneCode" placeholder="请输入验证码" type="tel">
+								<a class="btn" href="javascript:void(0);" id="sendPhoneCode"
+								   onClick="sendPhoneCode();">
+									<span class="dyMobileButton" id="getPhoneBtn">获取</span></a>
+							</div>
+							<div class="user-pass">
+								<label for="username"><i class="am-icon-user"></i></label>
+								<input id="username" name="username" placeholder="设置登陆名" type="username">
+							</div>
+							<div class="user-pass">
+								<label for="password"><i class="am-icon-lock"></i></label>
+								<input id="password" name="password" placeholder="设置密码" type="password">
+							</div>
+							<div class="user-pass">
+								<label for="passwordRepeat"><i class="am-icon-lock"></i></label>
+								<input id="passwordRepeat" name="" placeholder="确认密码" type="password">
+							</div>
+						</form>
+						<div id="phoneHintDiv" style="position: absolute;right: 20px;top: 45%;display: none;color: red">
+							<span id="phoneHintSpan" style="font-size: 12px">验证码已经发送至您的手机:</span>
+						</div>
+						<div class="login-links">
+							<label for="reader-me">
+								<input id="reader-me2" type="checkbox"> 点击表示您同意商城《服务协议》
+							</label>
+						</div>
+						<div class="am-cf">
+							<input class="am-btn am-btn-primary am-btn-sm am-fl" id= "phoneRegisterBtn" name="" onclick="phoneRegister()" type="submit" value="注册">
+						</div>
+
+						<hr>
+					</div>
+
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="footer ">
+		<div class="footer-hd ">
+			<p>
+				<a href="javascript:void(0)">途猪旅游论坛</a>
+				<b>|</b>
+				<a href="index_qian.html">首页</a>
+				<b>|</b>
+				<a href="javascript:void(0)">特价线路</a>
+				<b>|</b>
+				<a href="javascript:void(0)">天气</a>
+			</p>
+		</div>
+		<div class="footer-bd ">
+			<p>
+				<a href="javascript:void(0)">关于我们</a>
+				<a href="javascript:void(0)">合作伙伴</a>
+				<a href="javascript:void(0)">联系我们</a>
+				<a href="javascript:void(0)">网站地图</a>
+				<em>© 2015-2025 niuniu.com 版权所有</em>
+			</p>
+		</div>
+	</div>
+</div>
+</body>
+<script>
+	$(function () {
+
+	})
+
+	//表单邮箱按钮
+	function emailRegisterbot() {
+		console.log("zhixingl")
+		$("#emailregistbot").attr("class", "am-tab-panel am-active");
+		console.log("zhixing2")
+		$("#phoneregistbot").attr("class", "am-tab-panel");
+		console.log("zhixing3")
+	}
+	//表单手机按钮
+	function phoneRegisterbot() {
+		$("#phoneregistbot").attr("class", "am-tab-panel am-active");
+		$("#emailregistbot").attr("class", "am-tab-panel");
+	}
+	
+	
+	//邮箱注册
+	function emailRegister(form) {
+
+		//验证两次密码
+		if ($("#password1").val() == $("#passwordRepeat1").val()) {
+			//校验密码：只能输入6-20个字母、数字、下划线
+			var patrn = /^(\w){6,20}$/;
+			if (!patrn.exec($("#password1").val())) {
+				return hintEmail("密码不合法:：只能输入6-20个字母、数字、下划线");
+				return false;
+			} else {
+				//请求后台验证邮箱
+				$.getJSON("user/verifyemailcode", {
+					"registEmail": $("#email").val(),
+					"code": $("#emailCode").val()
+				}, function (data) {
+					//邮箱验证通过
+					if (data.success) {
+						$.getJSON("user/emailregist", {
+							"username" : $("#username1").val(),
+							"registEmail": $("#email").val(),
+							"password": $("#password1").val()
+						}, function (data) {
+							if (data.success) {
+								alert("感谢您的加入！即将跳转至登陆界面！是否确定");
+								window.location.href = "login_qian.html";
+							} else if (data.data.statuCode == 500) {
+								hintEmail(data.errorMsg);
+							} else {
+								hintEmail("注册发生了未知的错误请您稍后重试");
+							}
+
+						})
+					} else {
+						//邮箱验证不通过
+						hintEmail(data.errorMsg);
+
+					}
+
+				})
+
+			}
+
+		} else {
+			return hintEmail("两次密码不一致");
+
+		}
+
+		return false;
+	}
+
+	//发送邮件提示定时器
+	sendEmail = null;
+	//邮箱输入状态
+	statuCode = 0;
+
+	function sendEmailCode() {
+
+		if ($("#getEmailBtn").html() == "获取中.....") {
+			return hintEmail("正在请求中....请等待");
+
+		}
+		//验证邮箱格式
+		if (verificationEmail($("#email").val()) == false || !verificationEmail($("#email").val())) {
+			return hintEmail("邮箱格式有误");
+		}
+
+		if ($("#getEmailBtn").html() == "重新发送验证码" || $("#getEmailBtn").html() == "获取") {
+			$("#getEmailBtn").html("获取中.....")
+			$.getJSON("user/sendemailcode", {"registEmail": $("#email").val()}, function (data) {
+				if (data.success) {
+					countDown($("#getEmailBtn"), 20);
+				} else if (data.statuCode == 403) {
+					hintEmail("验证码已经发送至您的邮箱!请注意查收");
+					countDown($("#getEmailBtn"), data.errorMsg);
+				} else if (data.statuCode == 500) {
+					data.statuCode = 500;
+					hintEmail(data.errorMsg)
+					$("#getEmailBtn").html("重新发送验证码")
+				} else {
+					hintEmail("验证码已经发送至您的邮箱!请注意查收");
+				}
+
+			})
+		} else {
+			if (statuCode != 500) {
+				hintEmail("验证码已经发送至您的邮箱!请注意查收");
+			} else {
+				hintEmail("请重新输入邮箱地址");
+			}
+
+		}
+	}
+
+	//邮箱提示
+	function hintEmail(message) {
+		clearTimeout(sendEmail);
+		$("#emailHintDiv").show(1000);
+		$("#emailHintSpan").html(message);
+		sendEmail = setTimeout("$('#emailHintDiv').hide(500)", 5000);
+		return false;
+
+	}
+
+	//验证邮箱
+	function verificationEmail(email) {
+		if (email == null || email == undefined || email == "") {
+			return false;
+		}
+		var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+		if (reg.test(email)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	timer = null;
+	timer2 = null;
+
+	//倒计时
+	function countDown(that, count) {
+		clearInterval(timer); //清除计时器
+		timer = setInterval(function () {
+			if (count > 0) {
+				count--;
+				that.html("剩余时间" + count + "s");
+			} else {
+				that.html("重新发送验证码");
+				clearInterval(timer); //清除计时器
+			}
+		}, 1000);
+
+	}
+	// <______________________________________________________________________>
+
+	function phoneRegister(form) {
+
+		//验证两次密码
+		if ($("#password").val() == $("#passwordRepeat").val()) {
+			//校验密码：只能输入6-20个字母、数字、下划线
+			var patrn = /^(\w){6,20}$/;
+			if (!patrn.exec($("#password").val())) {
+				return hintPhone("密码不合法:：只能输入6-20个字母、数字、下划线");
+				return false;
+			} else {
+				//请求后台验证手机号
+				$.getJSON("user/verifyphonecode", {
+					"registPhone": $("#phone").val(),
+					"phoneCode": $("#phoneCode").val()
+				}, function (data) {
+					//手机号验证通过
+					if (data.success) {
+						$.getJSON("user/registphone", {
+							"username":$("#username").val(),
+							"registPhone": $("#phone").val(),
+							"password": $("#password").val()
+						}, function (data) {
+							if (data.success) {
+								alert("感谢您的加入！即将跳转至登陆界面！是否确定");
+								window.location.href = "login_qian.html";
+							} else if (data.data.statuCode == 500) {
+								hintPhone(data.errorMsg);
+							} else {
+								hintPhone("注册发生了未知的错误请您稍后重试");
+							}
+
+						})
+					} else {
+						//手机验证不通过
+						hintPhone(data.errorMsg);
+
+					}
+
+				})
+
+			}
+
+		} else {
+			return hintPhone("两次密码不一致");
+
+		}
+
+		return false;
+	}
+
+	//发送手机提示定时器
+	sendPhone = null;
+	//手机输入状态
+	statuCode = 0;
+
+	function sendPhoneCode() {
+
+		if ($("#getPhoneBtn").html() == "获取中.....") {
+			return hintPhone("正在请求中....请等待");
+		}
+		//验证手机格式
+		if (verificationPhone($("#phone").val()) == false || !verificationPhone($("#phone").val())) {
+			return hintPhone("手机格式有误");
+		}
+		if ($("#getPhoneBtn").html() == "重新发送验证码" || $("#getPhoneBtn").html() == "获取") {
+			$("#getPhoneBtn").html("获取中.....")
+			$.getJSON("user/sendphonecode", {"registPhone": $("#phone").val()}, function (data) {
+				if (data.success) {
+					countDown($("#getPhoneBtn"), 20);
+				} else if (data.statuCode == 403) {
+					hintPhone("验证码已经发送至您的手机!请注意查收");
+					countDown($("#getPhoneBtn"), data.errorMsg);
+				} else if (data.statuCode == 500) {
+					data.statuCode = 500;
+					hintPhone(data.errorMsg)
+					$("#getPhoneBtn").html("重新发送验证码")
+				} else {
+					hintPhone("验证码已经发送至您的手机!请注意查收");
+				}
+
+			})
+		} else {
+			if (statuCode != 500) {
+				hintPhone("验证码已经发送至您的手机!请注意查收");
+			} else {
+				hintPhone("请重新输入手机地址");
+			}
+
+		}
+	}
+
+	//手机提示
+	function hintPhone(message) {
+		clearTimeout(sendPhone);
+		$("#phoneHintDiv").show(1000);
+		$("#phoneHintSpan").html(message);
+		sendphone = setTimeout("$('#phoneHintDiv').hide(500)", 5000);
+		return false;
+
+	}
+
+	//验证手机
+	function verificationPhone(phone) {
+		if (phone == null || phone == undefined || phone == "") {
+			return false;
+		}
+		var reg = /(^1\d{10}$)|(^[0-9]\d{7}$)/;
+		if (reg.test(phone)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	timer = null;
+	timer2 = null;
+
+	//倒计时
+	function countDown(that, count) {
+		clearInterval(timer); //清除计时器
+		timer = setInterval(function () {
+			if (count > 0) {
+				count--;
+				that.html("剩余时间" + count + "s");
+			} else {
+				that.html("重新发送验证码");
+				clearInterval(timer); //清除计时器
+			}
+		}, 1000);
+
+	}
+
+
+
+
+</script>
+
+</html>

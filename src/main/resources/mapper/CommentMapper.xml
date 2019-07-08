@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.CommentMapper">
+
+<!--
+
+    &lt;!&ndash; 显示所有用户（包含管理员） &ndash;&gt;
+    <select id="listAllComment" parameterType="com.qf.travel.vo.CommentVo" resultType="com.qf.travel.vo.CommentVo">
+        SELECT * FROM t_backstageuser WHERE username = #{username} and password = #{password};
+    </select>
+
+    &lt;!&ndash; 删除管理员权限 &ndash;&gt;
+    <update id="delComment" parameterType="com.qf.travel.vo.CommentVo">
+        update
+    </update>
+
+
+    &lt;!&ndash;增加管理员&ndash;&gt;
+    <insert id="delComments" parameterType="com.qf.travel.vo.CommentVo">
+
+    </insert>
+
+    &lt;!&ndash;修改管理员&ndash;&gt;
+    <update id="updateAdmin" parameterType="com.qf.travel.vo.UserInfoVo">
+
+    </update>
+
+-->
+
+</mapper>

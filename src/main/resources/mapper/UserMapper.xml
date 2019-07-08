@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.UserMapper">
+    <!--可以复用的sql语句 查询出所有字段-->
+    <sql id="Column_List">
+        id,username,password,regist_email,regist_phone,regist_time,
+        regist_status,user_state,birth,sex,update_time,user_head,login_time,last_ip,
+        diy_name,grade,address,phone,point
+    </sql>
+
+    <!--用户注册sql语句-->
+    <insert id="insertUser">
+        INSERT INTO t_userinfo (
+            username,
+            password,
+            regist_phone,
+            regist_email,
+            regist_time,
+            regist_status,
+            user_state
+        )
+        VALUES
+        (
+            #{username},
+            #{password},
+            #{registPhone},
+            #{registEmail},
+            #{registTime},
+           #{registStatus},
+            #{userState}
+        )
+    </insert>
+    <!--注销或冻结用户-->
+    <update id="logoutUser" >
+        UPDATE
+          t_userinfo
+        SET
+          user_state = '-1'
+        WHERE id = #{id}
+    </update>
+
+    <!--用户修改用户信息-->
+    <update id="updateUser" >
+        UPDATE
+          t_userinfo
+        SET
+          password = #{password},
+          regist_email = #{registEmail},
+          regist_phone = #{registPhone},
+          birth = #{birth},
+          sex = #{sex},
+          user_head = #{userHead},
+          diy_name = #{diyName},
+          address = #{address},
+          phone = #{phone}
+        WHERE id = #{id}
+    </update>
+
+    <!--自动更新用户信息-->
+    <update id="autoUpdateUser" >
+        UPDATE
+          t_userinfo
+        SET
+        login_time = #{loginTime},
+        last_ip = #{lastIp}
+        WHERE id = #{id}
+    </update>
+
+    <!--管理员更新用户信息-->
+    <update id="adminUpdateUser" >
+        UPDATE
+          t_userinfo
+        SET
+        id = #{id},
+        username = #{usernaem},
+        password = #{password},
+        regist_email = #{registEmail},
+        regist_phone = #{registPhone},
+        regist_time = #{registTime},
+        regist_status = #{registStatus},
+        user_state = #{userState},
+        birth = #{birth},
+        sex = #{sex},
+        update_time = #{updateTime},
+        user_head = #{userTead},
+        login_time = #{loginTime},
+        last_ip = #{lastIp},
+        diy_name = #{diyName},
+        grade = #{grade},
+        address = #{address},
+        phone = #{phone},
+        point = #{point}
+        WHERE id = #{id}
+    </update>
+
+
+    <!--通过id查询出User-->
+    <select id="selectUserById" resultType="com.qf.travel.entity.User">
+        select
+        <include refid="Column_List"/>
+        from t_userinfo
+        WHERE id = #{id}
+    </select>
+
+    <!--通过邮箱查询出User-->
+    <select id="selectUserByEmail" resultType="com.qf.travel.entity.User">
+        select
+        <include refid="Column_List"/>
+        from t_userinfo
+        WHERE regist_email = #{registEmail}
+    </select>
+
+    <!--通过手机号查询出User-->
+    <select id="selectUserByPhone" resultType="com.qf.travel.entity.User">
+        select
+        <include refid="Column_List"/>
+        from t_userinfo
+        WHERE regist_phone = #{registPhone}
+    </select>
+
+    <!--通过用户名查询出User-->
+    <select id="selectUserByUsername" resultType="com.qf.travel.entity.User">
+        select
+        <include refid="Column_List"/>
+        from t_userinfo
+        WHERE username = #{username}
+    </select>
+
+    <!--用户登陆-->
+    <select id="selectUserByLoginName" resultType="com.qf.travel.entity.User">
+        select
+        <include refid="Column_List"/>
+        from t_userinfo
+        <where>
+            <if test="registEmail != null and registEmail != ''">
+                regist_email= #{registEmail}
+            </if>
+            <if test="phone != null and phone != ''">
+                regist_phone=#{registPhone}
+            </if>
+            <if test="username != null and username != ''">
+                username=#{username}
+            </if>
+        </where>
+    </select>
+</mapper>

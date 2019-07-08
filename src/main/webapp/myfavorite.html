@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>旅游网-我的收藏</title>
+        <link href="flink/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="flink/css/common.css">
+        <link rel="stylesheet" href="flink/css/index.css">
+       <style>
+           .tab-content .row>div {
+            margin-top: 16px;
+           } 
+           .tab-content {
+            margin-bottom: 36px;
+           }
+       </style>
+       <script src="flink/js/jquery-3.3.1.js"></script>
+    </head>
+    <body>
+    <!--引入头部-->
+    <div id="header"></div>
+         <!-- 排行榜 start-->
+        <section id="content">            
+            <section class="hemai_jx">
+                <div class="jx_top">
+                    <div class="jx_tit">
+                        <img src="images/icon_5.jpg" alt="">
+                        <span>我的收藏</span>
+                    </div>                    
+                </div>
+                <div class="jx_content">
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="home">
+                            <div class="row" id="FavoriteInfo">
+
+
+                                <!--<div class="col-md-3">
+                                    <a href="route_detail.html">
+                                        <img src="images/collection_pic.jpg" alt="">
+                                        <div class="has_border">
+                                            <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+
+                                        </div>
+                                    </a>
+                                        <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em>
+                                            <button>删除</button>
+                                        </div>
+
+                                </div>
+
+
+                                <div class="col-md-3">
+                                    <a href="route_detail.html">
+                                        <img src="images/collection_pic.jpg" alt="">
+                                        <div class="has_border">
+                                            <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                            <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                                        </div>
+                                    </a>
+                                </div> -->
+
+                            </div>
+                        </div>                       
+                    </div>
+                </div>
+                <div class="pageNum">
+<!--                    <ul>
+                        <li><a href="">首页</a></li>
+                        <li class="threeword"><a href="#">上一页</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li><a href="#">6</a></li>
+                        <li><a href="#">7</a></li>
+                        <li><a href="#">8</a></li>
+                        <li><a href="#">9</a></li>
+                        <li><a href=<"#">10</a></li>
+                        <li class="threeword"><a href="javascript:;">下一页</a></li>
+                        <li class="threeword"><a href="javascript:;">末页</a></li>
+                    </ul>-->
+                </div>
+            </section>                      
+        </section>
+        <!-- 排行榜 end-->
+    <script>
+
+        function initMenuTree() {
+
+            $.get("user/findOne",{},function (data) {
+
+            //1.从服务器拉取数据
+//                listMenuByUserId
+            $.ajax({
+                //提交数据的类型 POST GET
+                type:"POST",
+                async:false,
+                //提交的网址
+                url:"favorite111",
+                data:JSON.stringify({
+                    "user_id":data.id
+                }),
+                //返回数据的格式
+                datatype: "json",//"xml", "html", "script", "json", "jsonp", "text".
+                //成功返回之后调用的函数
+                contentType:"application/json",
+                success:function(returnData){
+                    console.log(returnData);
+                    var innerHTMLText = "";
+                    $.each(returnData,function(index,item){
+
+                        console.log(item.id)
+                        innerHTMLText +=" <div class=\"col-md-3\">\n" +
+                            "                                    <a href=\"route_detail.html?id="+item.id+"\">";
+                        innerHTMLText +=" <img src=\"images/"+item.photo_src+".jpg\" alt=\"\">\n" +
+                            "                                        <div class=\"has_border\">";
+                        innerHTMLText +=" <h3>"+item.introduce+"</h3>\n" +
+                            "                                            <div class=\"price\">网付价<em>￥</em><strong>"+item.price+"</strong><em>起</em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='myfavorite.html' onclick='abc("+item.id+")'>删除</a></div>\n" +
+                            "                                        </div>\n" +
+                            "                                    </a>\n" +
+                            "                                </div>";
+
+                    })
+                    $("#FavoriteInfo").html(innerHTMLText);
+                },
+                //调用出错执行的函数
+                error: function(responseText){
+                    //请求出错处理
+                    console.error(responseText);
+                }
+            });
+
+            });
+
+        }
+        initMenuTree();
+
+
+
+        /*function initMenuTree_1() {
+            //1.从服务器拉取数据
+//                listMenuByUserId
+            $.ajax({
+                //提交数据的类型 POST GET
+                type:"POST",
+                async:false,
+                //提交的网址
+                url:"deleteInfo",
+                //返回数据的格式
+                datatype: "json",//"xml", "html", "script", "json", "jsonp", "text".
+                //成功返回之后调用的函数
+                contentType:"application/json",
+                success:function(){
+                    alert(111)
+                },
+                //调用出错执行的函数
+                error: function(responseText){
+                    //请求出错处理
+                    console.error(responseText);
+                }
+            });
+        }
+        initMenuTree_1();*/
+
+        function abc(a) {
+            $.get("user/findOne",{},function (data) {
+
+            $.ajax({
+                //提交数据的类型 POST GET
+                type:"POST",
+                async:false,
+                //提交的网址
+                url:"deleteInfo",
+                data:JSON.stringify({
+                    "id":a,
+                    "user_id":data.id
+                }),
+                //返回数据的格式
+                datatype: "json",//"xml", "html", "script", "json", "jsonp", "text".
+                //成功返回之后调用的函数
+                contentType:"application/json",
+                success:function(){
+                    window.location.reload()
+                },
+                //调用出错执行的函数
+                error: function(responseText){
+                    //请求出错处理
+                    console.error(responseText);
+                }
+            });
+            });
+
+        }
+
+    </script>
+    	
+         <!--引入尾部-->
+    	<div id="footer"></div>
+        <!--导入布局js，共享header和footer-->
+        <script type="text/javascript" src="flink/js/include.js"></script>
+    </body>
+</html>

@@ -1,0 +1,3286 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/*!**********************************************!*\
+  !*** ./components/common/ejs/2.5.2/index.js ***!
+  \**********************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* eslint-disable */
+/*
+ * EJS Embedded JavaScript templates
+ * Copyright 2112 Matthew Eernisse (mde@fleegix.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+
+
+/**
+ * @file Embedded JavaScript templating engine.
+ * @author Matthew Eernisse <mde@fleegix.org>
+ * @author Tiancheng "Timothy" Gu <timothygu99@gmail.com>
+ * @project EJS
+ * @license {@link http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0}
+ */
+
+/**
+ * EJS internal functions.
+ *
+ * Technically this "module" lies in the same file as {@link module:ejs}, for
+ * the sake of organization all the private functions re grouped into this
+ * module.
+ *
+ * @module ejs-internal
+ * @private
+ */
+
+/**
+ * Embedded JavaScript templating engine.
+ *
+ * @module ejs
+ * @public
+ */
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.VERSION = exports.__express = exports.escapeXML = exports.clearCache = exports.renderFile = exports.render = exports.compile = exports.resolveInclude = exports.localsName = exports.cache = undefined;
+
+var _path = __webpack_require__(/*! ./path */ 1);
+
+var path = _interopRequireWildcard(_path);
+
+var _utils = __webpack_require__(/*! ./utils */ 3);
+
+var utils = _interopRequireWildcard(_utils);
+
+var _package = __webpack_require__(/*! ./package */ 4);
+
+var pkg = _interopRequireWildcard(_package);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+
+var fs = {};
+// var path = require('./path');
+// var utils = require('./utils');
+
+var scopeOptionWarned = false;
+var _VERSION_STRING = pkg.version;
+var _DEFAULT_DELIMITER = '%';
+var _DEFAULT_LOCALS_NAME = 'locals';
+var _REGEX_STRING = '(<%%|%%>|<%=|<%-|<%_|<%#|<%|%>|-%>|_%>)';
+var _OPTS = ['cache', 'filename', 'delimiter', 'scope', 'context', 'debug', 'compileDebug', 'client', '_with', 'root', 'rmWhitespace', 'strict', 'localsName'];
+var _TRAILING_SEMCOL = /;\s*$/;
+var _BOM = /^\uFEFF/;
+
+/**
+ * EJS template function cache. This can be a LRU object from lru-cache NPM
+ * module. By default, it is {@link module:utils.cache}, a simple in-process
+ * cache that grows continuously.
+ *
+ * @type {Cache}
+ */
+
+var cache = exports.cache = utils.cache;
+
+/**
+ * Name of the object containing the locals.
+ *
+ * This variable is overriden by {@link Options}`.localsName` if it is not
+ * `undefined`.
+ *
+ * @type {String}
+ * @public
+ */
+
+var localsName = exports.localsName = _DEFAULT_LOCALS_NAME;
+
+/**
+ * Get the path to the included file from the parent file path and the
+ * specified path.
+ *
+ * @param {String}  name     specified path
+ * @param {String}  filename parent file path
+ * @param {Boolean} isDir    parent file path whether is directory
+ * @return {String}
+ */
+var resolveInclude = exports.resolveInclude = function resolveInclude(name, filename, isDir) {
+    var dirname = path.dirname;
+    var extname = path.extname;
+    var resolve = path.resolve;
+    var includePath = resolve(isDir ? filename : dirname(filename), name);
+    var ext = extname(name);
+    if (!ext) {
+        includePath += '.ejs';
+    }
+    return includePath;
+};
+
+/**
+ * Get the path to the included file by Options
+ *
+ * @param  {String}  path    specified path
+ * @param  {Options} options compilation options
+ * @return {String}
+ */
+function getIncludePath(path, options) {
+    var includePath;
+    if (path.charAt(0) == '/') {
+        includePath = resolveInclude(path.replace(/^\/*/, ''), options.root || '/', true);
+    } else {
+        if (!options.filename) {
+            throw new Error('`include` use relative path requires the \'filename\' option.');
+        }
+        includePath = resolveInclude(path, options.filename);
+    }
+    return includePath;
+}
+
+/**
+ * Get the template from a string or a file, either compiled on-the-fly or
+ * read from cache (if enabled), and cache the template if needed.
+ *
+ * If `template` is not set, the file specified in `options.filename` will be
+ * read.
+ *
+ * If `options.cache` is true, this function reads the file from
+ * `options.filename` so it must be set prior to calling this function.
+ *
+ * @memberof module:ejs-internal
+ * @param {Options} options   compilation options
+ * @param {String} [template] template source
+ * @return {(TemplateFunction|ClientFunction)}
+ * Depending on the value of `options.client`, either type might be returned.
+ * @static
+ */
+
+function handleCache(options, template) {
+    var func;
+    var filename = options.filename;
+    var hasTemplate = arguments.length > 1;
+
+    if (options.cache) {
+        if (!filename) {
+            throw new Error('cache option requires a filename');
+        }
+        func = cache.get(filename);
+        if (func) {
+            return func;
+        }
+        if (!hasTemplate) {
+            template = fs.readFileSync(filename).toString().replace(_BOM, '');
+        }
+    } else if (!hasTemplate) {
+        // istanbul ignore if: should not happen at all
+        if (!filename) {
+            throw new Error('Internal EJS error: no file name or template ' + 'provided');
+        }
+        template = fs.readFileSync(filename).toString().replace(_BOM, '');
+    }
+    func = compile(template, options);
+    if (options.cache) {
+        cache.set(filename, func);
+    }
+    return func;
+}
+
+/**
+ * Get the template function.
+ *
+ * If `options.cache` is `true`, then the template is cached.
+ *
+ * @memberof module:ejs-internal
+ * @param {String}  path    path for the specified file
+ * @param {Options} options compilation options
+ * @return {(TemplateFunction|ClientFunction)}
+ * Depending on the value of `options.client`, either type might be returned
+ * @static
+ */
+
+function includeFile(path, options) {
+    var opts = utils.shallowCopy({}, options);
+    opts.filename = getIncludePath(path, opts);
+    return handleCache(opts);
+}
+
+/**
+ * Get the JavaScript source of an included file.
+ *
+ * @memberof module:ejs-internal
+ * @param {String}  path    path for the specified file
+ * @param {Options} options compilation options
+ * @return {Object}
+ * @static
+ */
+
+function includeSource(path, options) {
+    var opts = utils.shallowCopy({}, options);
+    var includePath;
+    var template;
+    includePath = getIncludePath(path, opts);
+    template = fs.readFileSync(includePath).toString().replace(_BOM, '');
+    opts.filename = includePath;
+    var templ = new Template(template, opts);
+    templ.generateSource();
+    return {
+        source: templ.source,
+        filename: includePath,
+        template: template
+    };
+}
+
+/**
+ * Re-throw the given `err` in context to the `str` of ejs, `filename`, and
+ * `lineno`.
+ *
+ * @implements RethrowCallback
+ * @memberof module:ejs-internal
+ * @param {Error}  err      Error object
+ * @param {String} str      EJS source
+ * @param {String} filename file name of the EJS file
+ * @param {String} lineno   line number of the error
+ * @static
+ */
+
+function rethrow(err, str, filename, lineno) {
+    var lines = str.split('\n');
+    var start = Math.max(lineno - 3, 0);
+    var end = Math.min(lines.length, lineno + 3);
+    // Error context
+    var context = lines.slice(start, end).map(function (line, i) {
+        var curr = i + start + 1;
+        return (curr == lineno ? ' >> ' : '    ') + curr + '| ' + line;
+    }).join('\n');
+
+    // Alter exception message
+    err.path = filename;
+    err.message = (filename || 'ejs') + ':' + lineno + '\n' + context + '\n\n' + err.message;
+
+    throw err;
+}
+
+/**
+ * Copy properties in data object that are recognized as options to an
+ * options object.
+ *
+ * This is used for compatibility with earlier versions of EJS and Express.js.
+ *
+ * @memberof module:ejs-internal
+ * @param {Object}  data data object
+ * @param {Options} opts options object
+ * @static
+ */
+
+function cpOptsInData(data, opts) {
+    _OPTS.forEach(function (p) {
+        if (typeof data[p] != 'undefined') {
+            opts[p] = data[p];
+        }
+    });
+}
+
+/**
+ * Compile the given `str` of ejs into a template function.
+ *
+ * @param {String}  template EJS template
+ *
+ * @param {Options} opts     compilation options
+ *
+ * @return {(TemplateFunction|ClientFunction)}
+ * Depending on the value of `opts.client`, either type might be returned.
+ * @public
+ */
+
+var compile = exports.compile = function compile(template, opts) {
+    var templ;
+
+    // v1 compat
+    // 'scope' is 'context'
+    // FIXME: Remove this in a future version
+    if (opts && opts.scope) {
+        if (!scopeOptionWarned) {
+            console.warn('`scope` option is deprecated and will be removed in EJS 3');
+            scopeOptionWarned = true;
+        }
+        if (!opts.context) {
+            opts.context = opts.scope;
+        }
+        delete opts.scope;
+    }
+    templ = new Template(template, opts);
+    return templ.compile();
+};
+
+/**
+ * Render the given `template` of ejs.
+ *
+ * If you would like to include options but not data, you need to explicitly
+ * call this function with `data` being an empty object or `null`.
+ *
+ * @param {String}   template EJS template
+ * @param {Object}  [data={}] template data
+ * @param {Options} [opts={}] compilation and rendering options
+ * @return {String}
+ * @public
+ */
+
+var render = exports.render = function render(template, d, o) {
+    var data = d || {};
+    var opts = o || {};
+
+    // No options object -- if there are optiony names
+    // in the data, copy them to options
+    if (arguments.length == 2) {
+        cpOptsInData(data, opts);
+    }
+
+    return handleCache(opts, template)(data);
+};
+
+/**
+ * Render an EJS file at the given `path` and callback `cb(err, str)`.
+ *
+ * If you would like to include options but not data, you need to explicitly
+ * call this function with `data` being an empty object or `null`.
+ *
+ * @param {String}             path     path to the EJS file
+ * @param {Object}            [data={}] template data
+ * @param {Options}           [opts={}] compilation and rendering options
+ * @param {RenderFileCallback} cb callback
+ * @public
+ */
+
+var renderFile = exports.renderFile = function renderFile() {
+    var args = Array.prototype.slice.call(arguments);
+    var filename = args.shift();
+    var cb = args.pop();
+    var data = args.shift() || {};
+    var opts = args.pop() || {};
+    var result;
+
+    // Don't pollute passed in opts obj with new vals
+    opts = utils.shallowCopy({}, opts);
+
+    // No options object -- if there are optiony names
+    // in the data, copy them to options
+    if (arguments.length == 3) {
+        // Express 4
+        if (data.settings && data.settings['view options']) {
+            cpOptsInData(data.settings['view options'], opts);
+        }
+        // Express 3 and lower
+        else {
+                cpOptsInData(data, opts);
+            }
+    }
+    opts.filename = filename;
+
+    try {
+        result = handleCache(opts)(data);
+    } catch (err) {
+        return cb(err);
+    }
+    return cb(null, result);
+};
+
+/**
+ * Clear intermediate JavaScript cache. Calls {@link Cache#reset}.
+ * @public
+ */
+
+var clearCache = exports.clearCache = function clearCache() {
+    cache.reset();
+};
+
+function Template(text, opts) {
+    opts = opts || {};
+    var options = {};
+    this.templateText = text;
+    this.mode = null;
+    this.truncate = false;
+    this.currentLine = 1;
+    this.source = '';
+    this.dependencies = [];
+    options.client = opts.client || true;
+    options.escapeFunction = opts.escape || utils.escapeXML;
+    options.compileDebug = opts.compileDebug !== false;
+    options.debug = !!opts.debug;
+    options.filename = opts.filename;
+    options.delimiter = opts.delimiter || _DEFAULT_DELIMITER;
+    options.strict = opts.strict || false;
+    options.context = opts.context;
+    options.cache = opts.cache || false;
+    options.rmWhitespace = opts.rmWhitespace;
+    options.root = opts.root;
+    options.localsName = opts.localsName || localsName || _DEFAULT_LOCALS_NAME;
+
+    if (options.strict) {
+        options._with = false;
+    } else {
+        options._with = typeof opts._with != 'undefined' ? opts._with : true;
+    }
+
+    this.opts = options;
+
+    this.regex = this.createRegex();
+}
+
+Template.modes = {
+    EVAL: 'eval',
+    ESCAPED: 'escaped',
+    RAW: 'raw',
+    COMMENT: 'comment',
+    LITERAL: 'literal'
+};
+
+Template.prototype = {
+    createRegex: function createRegex() {
+        var str = _REGEX_STRING;
+        var delim = utils.escapeRegExpChars(this.opts.delimiter);
+        str = str.replace(/%/g, delim);
+        return new RegExp(str);
+    },
+
+    compile: function compile() {
+        var src;
+        var fn;
+        var opts = this.opts;
+        var prepended = '';
+        var appended = '';
+        var escape = opts.escapeFunction;
+
+        if (!this.source) {
+            this.generateSource();
+            prepended += '  var __output = [], __append = __output.push.bind(__output);' + '\n';
+            if (opts._with !== false) {
+                prepended += '  with (' + opts.localsName + ' || {}) {' + '\n';
+                appended += '  }' + '\n';
+            }
+            appended += '  return __output.join("");' + '\n';
+            this.source = prepended + this.source + appended;
+        }
+
+        if (opts.compileDebug) {
+            src = 'var __line = 1' + '\n' + '  , __lines = ' + JSON.stringify(this.templateText) + '\n' + '  , __filename = ' + (opts.filename ? JSON.stringify(opts.filename) : 'undefined') + ';' + '\n' + 'try {' + '\n' + this.source + '} catch (e) {' + '\n' + '  rethrow(e, __lines, __filename, __line);' + '\n' + '}' + '\n';
+        } else {
+            src = this.source;
+        }
+
+        if (opts.debug) {
+            console.log(src);
+        }
+
+        if (opts.client) {
+            src = 'escape = escape || ' + escape.toString() + ';' + '\n' + src;
+            if (opts.compileDebug) {
+                src = 'rethrow = rethrow || ' + rethrow.toString() + ';' + '\n' + src;
+            }
+        }
+
+        if (opts.strict) {
+            src = '"use strict";\n' + src;
+        }
+
+        try {
+            fn = new Function(opts.localsName + ', escape, include, rethrow', src);
+        } catch (e) {
+            // istanbul ignore else
+            if (e instanceof SyntaxError) {
+                if (opts.filename) {
+                    e.message += ' in ' + opts.filename;
+                }
+                e.message += ' while compiling ejs';
+            }
+            throw e;
+        }
+
+        if (opts.client) {
+            fn.dependencies = this.dependencies;
+            return function () {
+                return fn.apply(opts.context, Array.from(arguments));
+            };
+        }
+
+        // Return a callable function which will execute the function
+        // created by the source-code, with the passed data as locals
+        // Adds a local `include` function which allows full recursive include
+        var returnedFn = function returnedFn(data) {
+            var include = function include(path, includeData) {
+                var d = utils.shallowCopy({}, data);
+                if (includeData) {
+                    d = utils.shallowCopy(d, includeData);
+                }
+                return includeFile(path, opts)(d);
+            };
+            return fn.apply(opts.context, [data || {}, escape, include, rethrow]);
+        };
+        returnedFn.dependencies = this.dependencies;
+        return returnedFn;
+    },
+
+    generateSource: function generateSource() {
+        var opts = this.opts;
+
+        if (opts.rmWhitespace) {
+            // Have to use two separate replace here as `^` and `$` operators don't
+            // work well with `\r`.
+            this.templateText = this.templateText.replace(/\r/g, '').replace(/^\s+|\s+$/gm, '');
+        }
+
+        // Slurp spaces and tabs before <%_ and after _%>
+        this.templateText = this.templateText.replace(/[ \t]*<%_/gm, '<%_').replace(/_%>[ \t]*/gm, '_%>');
+
+        var self = this;
+        var matches = this.parseTemplateText();
+        var d = this.opts.delimiter;
+
+        if (matches && matches.length) {
+            matches.forEach(function (line, index) {
+                var opening;
+                var closing;
+                var include;
+                var includeOpts;
+                var includeObj;
+                var includeSrc;
+                // If this is an opening tag, check for closing tags
+                // FIXME: May end up with some false positives here
+                // Better to store modes as k/v with '<' + delimiter as key
+                // Then this can simply check against the map
+                if (line.indexOf('<' + d) === 0 // If it is a tag
+                && line.indexOf('<' + d + d) !== 0) {
+                    // and is not escaped
+                    closing = matches[index + 2];
+                    if (!(closing == d + '>' || closing == '-' + d + '>' || closing == '_' + d + '>')) {
+                        throw new Error('Could not find matching close tag for "' + line + '".');
+                    }
+                }
+                // HACK: backward-compat `include` preprocessor directives
+                if (include = line.match(/^\s*include\s+(\S+)/)) {
+                    opening = matches[index - 1];
+                    // Must be in EVAL or RAW mode
+                    if (opening && (opening == '<' + d || opening == '<' + d + '-' || opening == '<' + d + '_')) {
+                        includeOpts = utils.shallowCopy({}, self.opts);
+                        includeObj = includeSource(include[1], includeOpts);
+                        if (self.opts.compileDebug) {
+                            includeSrc = '    ; (function(){' + '\n' + '      var __line = 1' + '\n' + '      , __lines = ' + JSON.stringify(includeObj.template) + '\n' + '      , __filename = ' + JSON.stringify(includeObj.filename) + ';' + '\n' + '      try {' + '\n' + includeObj.source + '      } catch (e) {' + '\n' + '        rethrow(e, __lines, __filename, __line);' + '\n' + '      }' + '\n' + '    ; }).call(this)' + '\n';
+                        } else {
+                            includeSrc = '    ; (function(){' + '\n' + includeObj.source + '    ; }).call(this)' + '\n';
+                        }
+                        self.source += includeSrc;
+                        self.dependencies.push(resolveInclude(include[1], includeOpts.filename));
+                        return;
+                    }
+                }
+                self.scanLine(line);
+            });
+        }
+    },
+
+    parseTemplateText: function parseTemplateText() {
+        var str = this.templateText;
+        var pat = this.regex;
+        var result = pat.exec(str);
+        var arr = [];
+        var firstPos;
+
+        while (result) {
+            firstPos = result.index;
+
+            if (firstPos !== 0) {
+                arr.push(str.substring(0, firstPos));
+                str = str.slice(firstPos);
+            }
+
+            arr.push(result[0]);
+            str = str.slice(result[0].length);
+            result = pat.exec(str);
+        }
+
+        if (str) {
+            arr.push(str);
+        }
+
+        return arr;
+    },
+
+    scanLine: function scanLine(line) {
+        var self = this;
+        var d = this.opts.delimiter;
+        var newLineCount = 0;
+
+        function _addOutput() {
+            if (self.truncate) {
+                // Only replace single leading linebreak in the line after
+                // -%> tag -- this is the single, trailing linebreak
+                // after the tag that the truncation mode replaces
+                // Handle Win / Unix / old Mac linebreaks -- do the \r\n
+                // combo first in the regex-or
+                line = line.replace(/^(?:\r\n|\r|\n)/, '');
+                self.truncate = false;
+            } else if (self.opts.rmWhitespace) {
+                // Gotta be more careful here.
+                // .replace(/^(\s*)\n/, '$1') might be more appropriate here but as
+                // rmWhitespace already removes trailing spaces anyway so meh.
+                line = line.replace(/^\n/, '');
+            }
+            if (!line) {
+                return;
+            }
+
+            // Preserve literal slashes
+            line = line.replace(/\\/g, '\\\\');
+
+            // Convert linebreaks
+            line = line.replace(/\n/g, '\\n');
+            line = line.replace(/\r/g, '\\r');
+
+            // Escape double-quotes
+            // - this will be the delimiter during execution
+            line = line.replace(/"/g, '\\"');
+            self.source += '    ; __append("' + line + '")' + '\n';
+        }
+
+        newLineCount = line.split('\n').length - 1;
+
+        switch (line) {
+            case '<' + d:
+            case '<' + d + '_':
+                this.mode = Template.modes.EVAL;
+                break;
+            case '<' + d + '=':
+                this.mode = Template.modes.ESCAPED;
+                break;
+            case '<' + d + '-':
+                this.mode = Template.modes.RAW;
+                break;
+            case '<' + d + '#':
+                this.mode = Template.modes.COMMENT;
+                break;
+            case '<' + d + d:
+                this.mode = Template.modes.LITERAL;
+                this.source += '    ; __append("' + line.replace('<' + d + d, '<' + d) + '")' + '\n';
+                break;
+            case d + d + '>':
+                this.mode = Template.modes.LITERAL;
+                this.source += '    ; __append("' + line.replace(d + d + '>', d + '>') + '")' + '\n';
+                break;
+            case d + '>':
+            case '-' + d + '>':
+            case '_' + d + '>':
+                if (this.mode == Template.modes.LITERAL) {
+                    _addOutput();
+                }
+
+                this.mode = null;
+                this.truncate = line.indexOf('-') === 0 || line.indexOf('_') === 0;
+                break;
+            default:
+                // In script mode, depends on type of tag
+                if (this.mode) {
+                    // If '//' is found without a line break, add a line break.
+                    switch (this.mode) {
+                        case Template.modes.EVAL:
+                        case Template.modes.ESCAPED:
+                        case Template.modes.RAW:
+                            if (line.lastIndexOf('//') > line.lastIndexOf('\n')) {
+                                line += '\n';
+                            }
+                    }
+                    switch (this.mode) {
+                        // Just executing code
+                        case Template.modes.EVAL:
+                            this.source += '    ; ' + line + '\n';
+                            break;
+                        // Exec, esc, and output
+                        case Template.modes.ESCAPED:
+                            this.source += '    ; __append(escape(' + line.replace(_TRAILING_SEMCOL, '').trim() + '))' + '\n';
+                            break;
+                        // Exec and output
+                        case Template.modes.RAW:
+                            this.source += '    ; __append(' + line.replace(_TRAILING_SEMCOL, '').trim() + ')' + '\n';
+                            break;
+                        case Template.modes.COMMENT:
+                            // Do nothing
+                            break;
+                        // Literal <%% mode, append as raw output
+                        case Template.modes.LITERAL:
+                            _addOutput();
+                            break;
+                    }
+                }
+                // In string mode, just add the output
+                else {
+                        _addOutput();
+                    }
+        }
+
+        if (self.opts.compileDebug && newLineCount) {
+            this.currentLine += newLineCount;
+            this.source += '    ; __line = ' + this.currentLine + '\n';
+        }
+    }
+};
+
+/**
+ * Escape characters reserved in XML.
+ *
+ * This is simply an export of {@link module:utils.escapeXML}.
+ *
+ * If `markup` is `undefined` or `null`, the empty string is returned.
+ *
+ * @param {String} markup Input string
+ * @return {String} Escaped string
+ * @public
+ * @func
+ * */
+var escapeXML = exports.escapeXML = utils.escapeXML;
+
+/**
+ * Express.js support.
+ *
+ * This is an alias for {@link module:ejs.renderFile}, in order to support
+ * Express.js out-of-the-box.
+ *
+ * @func
+ */
+
+var __express = exports.__express = renderFile;
+
+// Add require support
+/* istanbul ignore else */
+// if (require.extensions) {
+//     require.extensions['.ejs'] = function (module, flnm) {
+//         var filename = flnm || /* istanbul ignore next */ module.filename;
+//         var options = {
+//             filename: filename,
+//             client: true
+//         };
+//         var template = fs.readFileSync(filename).toString();
+//         var fn = exports.compile(template, options);
+//         module._compile('module.exports = ' + fn.toString() + ';', filename);
+//     };
+// }
+
+/**
+ * Version of EJS.
+ *
+ * @readonly
+ * @type {String}
+ * @public
+ */
+
+var VERSION = exports.VERSION = _VERSION_STRING;
+
+/* istanbul ignore if */
+// if (typeof window != 'undefined') {
+//     window.ejs = exports;
+// }
+
+/***/ }),
+/* 1 */
+/*!*********************************************!*\
+  !*** ./components/common/ejs/2.5.2/path.js ***!
+  \*********************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _process = __webpack_require__(/*! ./process.js */ 2);
+
+function normalizeArray(parts, allowAboveRoot) {
+    // if the path tries to go above the root, `up` ends up > 0
+    var up = 0;
+    for (var i = parts.length - 1; i >= 0; i--) {
+        var last = parts[i];
+        if (last === '.') {
+            parts.splice(i, 1);
+        } else if (last === '..') {
+            parts.splice(i, 1);
+            up++;
+        } else if (up) {
+            parts.splice(i, 1);
+            up--;
+        }
+    }
+
+    // if the path is allowed to go above the root, restore leading ..s
+    if (allowAboveRoot) {
+        for (; up--; up) {
+            parts.unshift('..');
+        }
+    }
+
+    return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+/* eslint-disable */
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function splitPath(filename) {
+    return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function () {
+    var resolvedPath = '',
+        resolvedAbsolute = false;
+
+    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+        var path = i >= 0 ? arguments[i] : _process.process.cwd();
+
+        // Skip empty and invalid entries
+        if (typeof path !== 'string') {
+            throw new TypeError('Arguments to path.resolve must be strings');
+        } else if (!path) {
+            continue;
+        }
+
+        resolvedPath = path + '/' + resolvedPath;
+        resolvedAbsolute = path.charAt(0) === '/';
+    }
+
+    // At this point the path should be resolved to a full absolute path, but
+    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+    // Normalize the path
+    resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function (p) {
+        return !!p;
+    }), !resolvedAbsolute).join('/');
+
+    return (resolvedAbsolute ? '/' : '') + resolvedPath || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function (path) {
+    var isAbsolute = exports.isAbsolute(path),
+        trailingSlash = substr(path, -1) === '/';
+
+    // Normalize the path
+    path = normalizeArray(filter(path.split('/'), function (p) {
+        return !!p;
+    }), !isAbsolute).join('/');
+
+    if (!path && !isAbsolute) {
+        path = '.';
+    }
+    if (path && trailingSlash) {
+        path += '/';
+    }
+
+    return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function (path) {
+    return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function () {
+    var paths = Array.prototype.slice.call(arguments, 0);
+    return exports.normalize(filter(paths, function (p, index) {
+        if (typeof p !== 'string') {
+            throw new TypeError('Arguments to path.join must be strings');
+        }
+        return p;
+    }).join('/'));
+};
+
+// path.relative(from, to)
+// posix version
+exports.relative = function (from, to) {
+    from = exports.resolve(from).substr(1);
+    to = exports.resolve(to).substr(1);
+
+    function trim(arr) {
+        var start = 0;
+        for (; start < arr.length; start++) {
+            if (arr[start] !== '') break;
+        }
+
+        var end = arr.length - 1;
+        for (; end >= 0; end--) {
+            if (arr[end] !== '') break;
+        }
+
+        if (start > end) return [];
+        return arr.slice(start, end - start + 1);
+    }
+
+    var fromParts = trim(from.split('/'));
+    var toParts = trim(to.split('/'));
+
+    var length = Math.min(fromParts.length, toParts.length);
+    var samePartsLength = length;
+    for (var i = 0; i < length; i++) {
+        if (fromParts[i] !== toParts[i]) {
+            samePartsLength = i;
+            break;
+        }
+    }
+
+    var outputParts = [];
+    for (var i = samePartsLength; i < fromParts.length; i++) {
+        outputParts.push('..');
+    }
+
+    outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+    return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function (path) {
+    var result = splitPath(path),
+        root = result[0],
+        dir = result[1];
+
+    if (!root && !dir) {
+        // No dirname whatsoever
+        return '.';
+    }
+
+    if (dir) {
+        // It has a dirname, strip trailing slash
+        dir = dir.substr(0, dir.length - 1);
+    }
+
+    return root + dir;
+};
+
+exports.basename = function (path, ext) {
+    var f = splitPath(path)[2];
+    // TODO: make this comparison case-insensitive on windows?
+    if (ext && f.substr(-1 * ext.length) === ext) {
+        f = f.substr(0, f.length - ext.length);
+    }
+    return f;
+};
+
+exports.extname = function (path) {
+    return splitPath(path)[3];
+};
+
+function filter(xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b' ? function (str, start, len) {
+    return str.substr(start, len);
+} : function (str, start, len) {
+    if (start < 0) start = str.length + start;
+    return str.substr(start, len);
+};
+
+/***/ }),
+/* 2 */
+/*!************************************************!*\
+  !*** ./components/common/ejs/2.5.2/process.js ***!
+  \************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// shim for using process in browser
+/* eslint-disable */
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while (len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
+    }
+    draining = false;
+}
+
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+// TODO(shtylman)
+process.cwd = function () {
+    return '/';
+};
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function () {
+    return 0;
+};
+
+/***/ }),
+/* 3 */
+/*!**********************************************!*\
+  !*** ./components/common/ejs/2.5.2/utils.js ***!
+  \**********************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*
+            * EJS Embedded JavaScript templates
+            * Copyright 2112 Matthew Eernisse (mde@fleegix.org)
+            *
+            * Licensed under the Apache License, Version 2.0 (the "License");
+            * you may not use this file except in compliance with the License.
+            * You may obtain a copy of the License at
+            *
+            *         http://www.apache.org/licenses/LICENSE-2.0
+            *
+            * Unless required by applicable law or agreed to in writing, software
+            * distributed under the License is distributed on an "AS IS" BASIS,
+            * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            * See the License for the specific language governing permissions and
+            * limitations under the License.
+            *
+            */
+
+/**
+            * Private utility functions
+            * @module utils
+            * @private
+            */
+
+
+/* eslint-disable */
+
+var regExpChars = /[|\\{}()[\]^$+*?.]/g;
+
+/**
+            * Escape characters reserved in regular expressions.
+            *
+            * If `string` is `undefined` or `null`, the empty string is returned.
+            *
+            * @param {String} string Input string
+            * @return {String} Escaped string
+            * @static
+            * @private
+            */
+exports.escapeRegExpChars = function (string) {
+    // istanbul ignore if
+    if (!string) {
+        return '';
+    }
+    return String(string).replace(regExpChars, '\\$&');
+};
+
+var _ENCODE_HTML_RULES = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&#34;',
+    "'": '&#39;'
+},
+    _MATCH_HTML = /[&<>\'"]/g;
+
+function encode_char(c) {
+    return _ENCODE_HTML_RULES[c] || c;
+};
+
+/**
+            * Stringified version of constants used by {@link module:utils.escapeXML}.
+            *
+            * It is used in the process of generating {@link ClientFunction}s.
+            *
+            * @readonly
+            * @type {String}
+            */
+
+var escapeFuncStr = 'var _ENCODE_HTML_RULES = {\n' + '      "&": "&amp;"\n' + '    , "<": "&lt;"\n' + '    , ">": "&gt;"\n' + '    , \'"\': "&#34;"\n' + '    , "\'": "&#39;"\n' + '    }\n' + '  , _MATCH_HTML = /[&<>\'"]/g;\n' + 'function encode_char(c) {\n' + '  return _ENCODE_HTML_RULES[c] || c;\n' + '};\n';
+
+/**
+            * Escape characters reserved in XML.
+            *
+            * If `markup` is `undefined` or `null`, the empty string is returned.
+            *
+            * @implements {EscapeCallback}
+            * @param {String} markup Input string
+            * @return {String} Escaped string
+            * @static
+            * @private
+            */
+
+// exports.escapeXML = function(markup) {
+//     return markup == undefined
+//         ? ''
+//         : String(markup).replace(_MATCH_HTML, encode_char);
+// };
+exports.escapeXML = new Function('markup', '\n    return markup == undefined\n    ? \'\'\n    : String(markup).replace(_MATCH_HTML, encode_char);\n');
+
+exports.escapeXML.toString = function () {
+    return Function.prototype.toString.call(this) + ';\n' + escapeFuncStr;
+};
+
+/**
+            * Copy all properties from one object to another, in a shallow fashion.
+            *
+            * @param  {Object} to   Destination object
+            * @param  {Object} from Source object
+            * @return {Object}      Destination object
+            * @static
+            * @private
+            */
+exports.shallowCopy = function (to, from) {
+    from = from || {};
+    for (var p in from) {
+        to[p] = from[p];
+    }
+    return to;
+};
+
+/**
+            * Simple in-process cache implementation. Does not implement limits of any
+            * sort.
+            *
+            * @implements Cache
+            * @static
+            * @private
+            */
+exports.cache = {
+    _data: {},
+    set: function set(key, val) {
+        this._data[key] = val;
+    },
+    get: function get(key) {
+        return this._data[key];
+    },
+    reset: function reset() {
+        this._data = {};
+    }
+};
+
+/***/ }),
+/* 4 */
+/*!************************************************!*\
+  !*** ./components/common/ejs/2.5.2/package.js ***!
+  \************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/* eslint-disable */
+module.exports = {
+    "name": "ejs",
+    "description": "Embedded JavaScript templates",
+    "keywords": ["template", "engine", "ejs"],
+    "version": "2.5.2",
+    "author": "Matthew Eernisse <mde@fleegix.org> (http://fleegix.org)",
+    "contributors": ["Timothy Gu <timothygu99@gmail.com> (https://timothygu.github.io)"],
+    "license": "Apache-2.0",
+    "main": "./lib/ejs.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/mde/ejs.git"
+    },
+    "bugs": "https://github.com/mde/ejs/issues",
+    "homepage": "https://github.com/mde/ejs",
+    "dependencies": {},
+    "devDependencies": {
+        "browserify": "^13.0.1",
+        "eslint": "^3.0.0",
+        "istanbul": "~0.4.3",
+        "jake": "^8.0.0",
+        "jsdoc": "^3.4.0",
+        "lru-cache": "^4.0.1",
+        "mocha": "^3.0.2",
+        "rimraf": "^2.2.8",
+        "uglify-js": "^2.6.2"
+    },
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "scripts": {
+        "test": "mocha",
+        "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
+        "doc": "rimraf out && jsdoc -c jsdoc.json lib/* docs/jsdoc/*",
+        "devdoc": "rimraf out && jsdoc -p -c jsdoc.json lib/* docs/jsdoc/*"
+    }
+};
+
+/***/ }),
+/* 5 */,
+/* 6 */
+/*!*****************************************!*\
+  !*** ./components/searchlist/config.js ***!
+  \*****************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+/**
+ * 参数序列化
+ * @param  {Object} params
+ * @return {String}
+ */
+var GET_TIP_URL = exports.GET_TIP_URL = 'classificationPage/ajaxGetProdunctStar/';
+var GET_DESC_URL = exports.GET_DESC_URL = 'classificationPage/ajaxGetPromotionDesc/';
+function queryStringify(params) {
+    return Object.keys(params || {}).reduce(function (list, key) {
+        var value = params[key];
+        if (value) {
+            if (Array.isArray(value)) {
+                value.forEach(function (item) {
+                    list.push(key + '[]=' + item);
+                });
+            } else {
+                list.push(key + '=' + value);
+            }
+        }
+        return list;
+    }, []).join('&');
+}
+exports.queryStringify = queryStringify;
+
+/***/ }),
+/* 7 */,
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */
+/*!*******************************!*\
+  !*** ./entries/searchlist.js ***!
+  \*******************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(/*! @/searchlist/index.js */ 24);
+
+/***/ }),
+/* 24 */
+/*!****************************************!*\
+  !*** ./components/searchlist/index.js ***!
+  \****************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(/*! @/searchlist/scss/index.scss */ 25);
+
+var _banner = __webpack_require__(/*! @/searchlist/components/banner */ 26);
+
+var _layer_tip = __webpack_require__(/*! @/searchlist/components/layer_tip.js */ 27);
+
+var _index = __webpack_require__(/*! @/searchlist/components/right/index.js */ 30);
+
+var _index2 = _interopRequireDefault(_index);
+
+var _index3 = __webpack_require__(/*! @/searchlist/components/bottom/index.js */ 32);
+
+var _index4 = _interopRequireDefault(_index3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+_banner.banner.init();
+_index2["default"].init();
+_index4["default"].init();
+_layer_tip.hoverTip.init();
+
+/***/ }),
+/* 25 */
+/*!***********************************************!*\
+  !*** ./components/searchlist/scss/index.scss ***!
+  \***********************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 26 */
+/*!****************************************************!*\
+  !*** ./components/searchlist/components/banner.js ***!
+  \****************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+/* eslint-disable */
+// 每张图片展示时间
+var delay = 5000;
+// 图片切换速度
+var speed = 700;
+
+var banner = {
+    init: function init() {
+        if (!($('.J_banner_wrap') && $('.J_banner_wrap').length)) return;
+        if ($('#tabKey').val() != 'whole') return;
+        this.$container = $('.J_banner_wrap');
+        //当前位置
+        this.currentIndex = 0;
+        // 下一个位置
+        this.nextIndex = 0;
+        self.displayChanging = false;
+        this.children = this.$container.find('li').toArray();
+        this.changeChildren = this.$container.find('.change').toArray();
+        this.length = this.children.length;
+        this.containerWidth = 1000 || this.$container.width();
+        this.atuoMove();
+        this.bind();
+    },
+    bind: function bind() {
+        var _this = this;
+
+        var self = this;
+        this.$container.on('click', '.J_slide_prev', function () {
+            self.change(self.getPrevIndex(), -1);
+        }).on('click', '.J_slide_next', function () {
+            self.change(self.getNextIndex(), 1);
+        });
+        this.$container.hover(function () {
+            self.stopAutoMove();
+        }, function () {
+            self.atuoMove();
+        });
+        this.changeChildren.forEach(function (i, index) {
+            $(_this.changeChildren[index]).click(function () {
+                self.change(index);
+            });
+        });
+    },
+    atuoMove: function atuoMove() {
+        var _this2 = this;
+
+        this.timer = setTimeout(function () {
+            _this2.change(_this2.getNextIndex());
+        }, delay);
+    },
+    change: function change(index, direction) {
+        if (this.displayChanging) return;
+
+        this.nextIndex = index;
+        this.changing = true;
+        this.changeDisplay(direction);
+
+        this.currentIndex = this.nextIndex;
+    },
+    changeDisplay: function changeDisplay() {
+        var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var self = this,
+            current = $(this.children[this.currentIndex]),
+            next = $(this.children[this.nextIndex]),
+            nextChange = $(this.changeChildren[this.nextIndex]);
+        this.displayChanging = true;
+        next.css('left', this.containerWidth * direction);
+        current.addClass('active');
+        next.addClass('active');
+        this.$container.find('ul').stop().animate({
+            'left': -this.containerWidth * direction
+        }, speed, function () {
+            $(this).css('left', 0);
+            next.css('left', 0);
+            current.css('left', -self.containerWidth).removeClass('active');
+            nextChange.siblings().removeClass('active');
+            nextChange.addClass('active');
+            self.displayChanging = false;
+            self.endChange();
+        });
+    },
+    stopAutoMove: function stopAutoMove() {
+        clearTimeout(this.timer);
+    },
+    getNextIndex: function getNextIndex() {
+        return (this.currentIndex + 1) % this.length;
+    },
+    getPrevIndex: function getPrevIndex() {
+        return (this.length + this.currentIndex - 1) % this.length;
+    },
+    endChange: function endChange() {
+        if (!this.displayChanging) {
+            this.startAutoChange();
+        }
+    },
+    startAutoChange: function startAutoChange() {
+        this.stopAutoMove();
+        this.atuoMove();
+    }
+};
+exports.banner = banner;
+
+/***/ }),
+/* 27 */
+/*!*******************************************************!*\
+  !*** ./components/searchlist/components/layer_tip.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.hoverTip = undefined;
+
+var _index = __webpack_require__(/*! @/common/layer/2.4.0/index */ 28);
+
+var _config = __webpack_require__(/*! @/searchlist/config */ 6);
+
+/* eslint-disable */
+var tipsMap = {
+    ppdzy: '为您的个性化出游需求提供高品质独立包团、自助出游等产品定制服务。',
+    bmy: '专为50岁以上的中老年人倾情打造的精品线路，优选航班、舒适行程、专属保险。',
+    ggqzy: '专为亲子人群设立的品牌，优先目的地，设计亲子玩法，让孩子多一个交友平台。',
+    nrzx: '高品质的跟团游，吃住升级、行程合理、资深导游、无强制消费。',
+    nryx: '优质交通、甄选住宿、跟班服务、高满意度。',
+    cfbwm: '专为青年人出游打造的品牌，线路行程自由、性价比高、无强制消费。',
+    ylzs: '途牛精选，轻奢之旅，心灵触碰。',
+    sfcf: '轻松首付，即刻出发，灵活分期，还款无忧',
+    mx: '该线路支持部分分期服务费减免，具体以收银台为准。',
+    visa: '专属顾问，专家团队，高效服务，信息安全'
+};
+var dialog = void 0,
+    timer = void 0,
+    starMap = {},
+    descMap = {};
+var hoverTip = {
+    init: function init() {
+        var self = this;
+        $('.contentcontainer').on('mouseenter', '.hover_tip', function () {
+            var _this = this;
+            var tt = $(this).attr('tt'); // tipsType,当是供应商时，内容直接放在这个里面
+            var productId = $(this).attr('productid'); // 除了品牌类型之外都应该有productid 属性，请求接口获取内容
+            var productType = $(this).attr('producttype'); // 获取大品类
+            var num = $(this).attr('num'); // 获取大品类
+            self.showTipText(tt, productId, productType, num).then(function (i) {
+                if (!dialog && i) {
+                    dialog = _index.layer.open({
+                        type: 4,
+                        skin: 'layui-layer-rim',
+                        area: ['auto'],
+                        content: [i, _this],
+                        tips: 3,
+                        shade: false,
+                        fix: false,
+                        closeBtn: false,
+                        tipsOffset: [10, -27]
+                    });
+                }
+            }, function () {});
+        }).on('mouseleave', '.hover_tip', function () {
+            dialog && _index.layer.close(dialog);
+            dialog = null;
+        });
+    },
+    showTipText: function showTipText(tt, id, type, num) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            if (tt == 'xj' && id) {
+                // 星级
+                starMap[id] ? resolve(self.fillHtml(starMap[id])) : $.ajax({
+                    url: app_url(_config.GET_TIP_URL + id),
+                    dataType: 'json',
+                    type: 'get',
+                    success: function success(res) {
+                        if (res.success && res.data && typeof res.data == 'string' && res.data != '') {
+                            starMap[id] = res.data;
+                            resolve(self.fillHtml(res.data));
+                        } else {
+                            resolve(self.fillHtml(false));
+                        }
+                    },
+                    error: function error() {
+                        resolve(self.fillHtml(false));
+                    }
+                });
+            } else if (tt == 'aj' && id && type) {
+                // 分期之类
+                if (id.slice(0, 3) == "300") {
+                    //零售商显示内容
+                    var bookCity = $('#bookCity').val();
+                    var key = id + "_" + type + "_" + bookCity;
+                    descMap[key] ? resolve(self.fillHtml(descMap[key])) : $.ajax({
+                        url: '//www.tuniu.com/web-catalog/api/search/ajaxGetRetail',
+                        data: {
+                            productIdList: id
+                        },
+                        type: 'get',
+                        success: function success(res) {
+                            if (res.success) {
+                                resolve(self.fillHtml(self.buildDescHtmlRetail(res.data, key)));
+                            } else {
+                                resolve(self.fillHtml(false));
+                            }
+                        },
+                        error: function error() {
+                            resolve(self.fillHtml(false));
+                        }
+                    });
+                } else {
+                    var _bookCity = $('#bookCity').val();
+                    var _key = id + "_" + type + "_" + _bookCity;
+                    descMap[_key] ? resolve(self.fillHtml(descMap[_key])) : $.ajax({
+                        url: app_url(_config.GET_DESC_URL + _bookCity + '/' + id + '/' + type),
+                        dataType: 'json',
+                        type: 'get',
+                        success: function success(res) {
+                            if (res.success && res.data && Array.isArray(res.data)) {
+                                resolve(self.fillHtml(self.buildDescHtml(res.data, num, _key)));
+                            } else {
+                                resolve(self.fillHtml(false));
+                            }
+                        },
+                        error: function error() {
+                            resolve(self.fillHtml(false));
+                        } });
+                }
+            } else {
+                resolve(self.fillHtml(tipsMap[tt] || tt));
+            }
+        });
+    },
+    fillHtml: function fillHtml(data) {
+        return data ? '<div style="background: #fffce5;color: #666; height: auto; max-width: 350px; padding: 0 10px;">' + data + '</div>' : false;
+    },
+
+    buildDescHtmlRetail: function buildDescHtml(data, key) {
+        //零售供应商显示内容
+        var str = [],
+            index = 0;
+        var dataitem = data.productList[0].promotionList;
+        for (var x in dataitem) {
+            if (dataitem[x].psType == '14' && dataitem[x].psState == '3') {
+                str.push('<p style="padding:5px 0">活动' + (+index + 1) + '：' + dataitem[x].psName.replace(/\n/g, '<br>') + '<br>活动时间：' + dataitem[x].beginDate + '至' + dataitem[x].endDate) + '</p>';
+                index += 1;
+            }
+        }
+        descMap[key] = str.join('');
+        return str.join('');
+    },
+    buildDescHtml: function buildDescHtml(data, num, key) {
+        // -1 早多优惠
+        var flag = num != -1 ? true : false;
+
+        var str = [],
+            index = 0;
+        for (var x in data) {
+            if (data[x].type == num && flag || !flag && (data[x].type == 16 || data[x].type == 17)) {
+                if (data[x].description) {
+                    str.push('<p style="padding:5px 0">活动' + (+index + 1) + '：' + data[x].description.replace(/\n/g, '<br>') + '<br>活动时间：' + data[x].beginDate + '至' + data[x].endDate) + '</p>';
+                }
+                index += 1;
+            }
+        }
+        descMap[key] = str.join('');
+        return str.join('');
+    }
+};
+exports.hoverTip = hoverTip;
+
+/***/ }),
+/* 28 */
+/*!************************************************!*\
+  !*** ./components/common/layer/2.4.0/index.js ***!
+  \************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* eslint-disable */
+/**
+ @Name：layer v2.4 弹层组件
+ @Author：贤心
+ @Site：http://layer.layui.com
+ @License：LGPL
+ */
+
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.layer = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+__webpack_require__(/*! ./index.scss */ 29);
+
+"use strict";
+
+var $,
+    win,
+    _ready = {
+    getPath: function () {
+        var js = document.scripts,
+            script = js[js.length - 1],
+            jsPath = script.src;
+        if (script.getAttribute('merge')) return;
+        return jsPath.substring(0, jsPath.lastIndexOf("/") + 1);
+    }(),
+
+    //屏蔽Enter触发弹层
+    enter: function enter(e) {
+        if (e.keyCode === 13) e.preventDefault();
+    },
+    config: {},
+    end: {},
+    btn: ['&#x786E;&#x5B9A;', '&#x53D6;&#x6D88;'],
+
+    //五种原始层模式
+    type: ['dialog', 'page', 'iframe', 'loading', 'tips']
+};
+
+//默认内置方法。
+var layer = {
+    v: '2.4',
+    ie6: !!window.ActiveXObject && !window.XMLHttpRequest,
+    index: 0,
+    path: _ready.getPath,
+    config: function config(options, fn) {
+        var item = 0;
+        options = options || {};
+        layer.cache = _ready.config = $.extend(_ready.config, options);
+        layer.path = _ready.config.path || layer.path;
+        typeof options.extend === 'string' && (options.extend = [options.extend]);
+        layer.use('skin/layer.css', options.extend && options.extend.length > 0 ? function loop() {
+            var ext = options.extend;
+            layer.use(ext[ext[item] ? item : item - 1], item < ext.length ? function () {
+                ++item;
+                return loop;
+            }() : fn);
+        }() : fn);
+        return this;
+    },
+
+    //载入配件
+    use: function use(module, fn, readyMethod) {
+        var i = 0,
+            head = $('head')[0];
+        var module = module.replace(/\s/g, '');
+        var iscss = /\.css$/.test(module);
+        var node = document.createElement(iscss ? 'link' : 'script');
+        var id = 'layui_layer_' + module.replace(/\.|\//g, '');
+        if (!layer.path) return;
+        if (iscss) {
+            node.rel = 'stylesheet';
+        }
+        node[iscss ? 'href' : 'src'] = /^http:\/\//.test(module) ? module : layer.path + module;
+        node.id = id;
+        if (!$('#' + id)[0]) {
+            head.appendChild(node);
+        }
+        //轮询加载就绪
+        ;
+        (function poll() {
+            ;
+            (iscss ? parseInt($('#' + id).css('width')) === 1989 : layer[readyMethod || id]) ? function () {
+                fn && fn();
+                try {
+                    iscss || head.removeChild(node);
+                } catch (e) {};
+            }() : setTimeout(poll, 100);
+        })();
+        return this;
+    },
+
+    ready: function ready(path, fn) {
+        var type = typeof path === 'function';
+        if (type) fn = path;
+        layer.config($.extend(_ready.config, function () {
+            return type ? {} : {
+                path: path
+            };
+        }()), fn);
+        return this;
+    },
+
+    //各种快捷引用
+    alert: function alert(content, options, yes) {
+        var type = typeof options === 'function';
+        if (type) yes = options;
+        return layer.open($.extend({
+            content: content,
+            yes: yes
+        }, type ? {} : options));
+    },
+
+    confirm: function confirm(content, options, yes, cancel) {
+        var type = typeof options === 'function';
+        if (type) {
+            cancel = yes;
+            yes = options;
+        }
+        return layer.open($.extend({
+            content: content,
+            btn: _ready.btn,
+            yes: yes,
+            btn2: cancel
+        }, type ? {} : options));
+    },
+
+    msg: function msg(content, options, end) {
+        //最常用提示层
+        var type = typeof options === 'function',
+            rskin = _ready.config.skin;
+        var skin = (rskin ? rskin + ' ' + rskin + '-msg' : '') || 'layui-layer-msg';
+        var shift = doms.anim.length - 1;
+        if (type) end = options;
+        return layer.open($.extend({
+            content: content,
+            time: 3000,
+            shade: false,
+            skin: skin,
+            title: false,
+            closeBtn: false,
+            btn: false,
+            end: end
+        }, type && !_ready.config.skin ? {
+            skin: skin + ' layui-layer-hui',
+            shift: shift
+        } : function () {
+            options = options || {};
+            if (options.icon === -1 || options.icon === undefined && !_ready.config.skin) {
+                options.skin = skin + ' ' + (options.skin || 'layui-layer-hui');
+            }
+            return options;
+        }()));
+    },
+
+    load: function load(icon, options) {
+        return layer.open($.extend({
+            type: 3,
+            icon: icon || 0,
+            shade: 0.01
+        }, options));
+    },
+
+    tips: function tips(content, follow, options) {
+        return layer.open($.extend({
+            type: 4,
+            content: [content, follow],
+            closeBtn: false,
+            time: 3000,
+            shade: false,
+            fix: false,
+            maxWidth: 210
+        }, options));
+    }
+};
+
+var Class = function Class(setings) {
+    var that = this;
+    that.index = ++layer.index;
+    that.config = $.extend({}, that.config, _ready.config, setings);
+    that.creat();
+};
+
+Class.pt = Class.prototype;
+
+//缓存常用字符
+var doms = ['layui-layer', '.layui-layer-title', '.layui-layer-main', '.layui-layer-dialog', 'layui-layer-iframe', 'layui-layer-content', 'layui-layer-btn', 'layui-layer-close'];
+doms.anim = ['layer-anim', 'layer-anim-01', 'layer-anim-02', 'layer-anim-03', 'layer-anim-04', 'layer-anim-05', 'layer-anim-06'];
+
+//默认配置
+Class.pt.config = {
+    type: 0,
+    shade: 0.3,
+    fix: true,
+    move: doms[1],
+    title: '&#x4FE1;&#x606F;',
+    offset: 'auto',
+    area: 'auto',
+    closeBtn: 1,
+    time: 0, //0表示不自动关闭
+    zIndex: 19891014,
+    maxWidth: 360,
+    shift: 0,
+    icon: -1,
+    scrollbar: true, //是否允许浏览器滚动条
+    tips: 2
+};
+
+//容器
+Class.pt.vessel = function (conType, callback) {
+    var that = this,
+        times = that.index,
+        config = that.config;
+    var zIndex = config.zIndex + times,
+        titype = _typeof(config.title) === 'object';
+    var ismax = config.maxmin && (config.type === 1 || config.type === 2);
+    var titleHTML = config.title ? '<div class="layui-layer-title" style="' + (titype ? config.title[1] : '') + '">' + (titype ? config.title[0] : config.title) + '</div>' : '';
+
+    config.zIndex = zIndex;
+    callback([
+    //遮罩
+    config.shade ? '<div class="layui-layer-shade" id="layui-layer-shade' + times + '" times="' + times + '" style="' + ('z-index:' + (zIndex - 1) + '; background-color:' + (config.shade[1] || '#000') + '; opacity:' + (config.shade[0] || config.shade) + '; filter:alpha(opacity=' + (config.shade[0] * 100 || config.shade * 100) + ');') + '"></div>' : '',
+
+    //主体
+    '<div class="' + doms[0] + (' layui-layer-' + _ready.type[config.type]) + ((config.type == 0 || config.type == 2) && !config.shade ? ' layui-layer-border' : '') + ' ' + (config.skin || '') + '" id="' + doms[0] + times + '" type="' + _ready.type[config.type] + '" times="' + times + '" showtime="' + config.time + '" conType="' + (conType ? 'object' : 'string') + '" style="z-index: ' + zIndex + '; width:' + config.area[0] + ';height:' + config.area[1] + (config.fix ? '' : ';position:absolute;') + '">' + (conType && config.type != 2 ? '' : titleHTML) + '<div id="' + (config.id || '') + '" class="layui-layer-content' + (config.type == 0 && config.icon !== -1 ? ' layui-layer-padding' : '') + (config.type == 3 ? ' layui-layer-loading' + config.icon : '') + '">' + (config.type == 0 && config.icon !== -1 ? '<i class="layui-layer-ico layui-layer-ico' + config.icon + '"></i>' : '') + (config.type == 2 || config.type == 4 || config.type == 1 && conType ? '' : config.content || '') + '</div>' + '<span class="layui-layer-setwin">' + function () {
+        var closebtn = ismax ? '<a class="layui-layer-min" href="javascript:;"><cite></cite></a><a class="layui-layer-ico layui-layer-max" href="javascript:;"></a>' : '';
+        config.closeBtn && (closebtn += '<a class="layui-layer-ico ' + doms[7] + ' ' + doms[7] + (config.title ? config.closeBtn : config.type == 4 ? '1' : '2') + '" href="javascript:;"></a>');
+        return closebtn;
+    }() + '</span>' + (config.btn ? function () {
+        var button = '';
+        typeof config.btn === 'string' && (config.btn = [config.btn]);
+        for (var i = 0, len = config.btn.length; i < len; i++) {
+            button += '<a class="' + doms[6] + '' + i + '">' + config.btn[i] + '</a>';
+        }
+        return '<div class="' + doms[6] + '">' + button + '</div>';
+    }() : '') + '</div>'], titleHTML);
+    return that;
+};
+
+//创建骨架
+Class.pt.creat = function () {
+    var that = this,
+        config = that.config,
+        times = that.index,
+        nodeIndex;
+    var content = config.content,
+        conType = (typeof content === "undefined" ? "undefined" : _typeof(content)) === 'object';
+
+    if ($('#' + config.id)[0]) return;
+
+    if (typeof config.area === 'string') {
+        config.area = config.area === 'auto' ? ['', ''] : [config.area, ''];
+    }
+
+    switch (config.type) {
+        case 0:
+            config.btn = 'btn' in config ? config.btn : _ready.btn[0];
+            layer.closeAll('dialog');
+            break;
+        case 2:
+            var content = config.content = conType ? config.content : [config.content || 'http://layer.layui.com', 'auto'];
+            config.content = '<iframe scrolling="' + (config.content[1] || 'auto') + '" allowtransparency="true" id="' + doms[4] + '' + times + '" name="' + doms[4] + '' + times + '" onload="this.className=\'\';" class="layui-layer-load" frameborder="0" src="' + config.content[0] + '"></iframe>';
+            break;
+        case 3:
+            config.title = false;
+            config.closeBtn = false;
+            config.icon === -1 && config.icon === 0;
+            layer.closeAll('loading');
+            break;
+        case 4:
+            conType || (config.content = [config.content, 'body']);
+            config.follow = config.content[1];
+            config.content = $('<div />').append(config.content[0], '<i class="layui-layer-TipsG"></i>')[0];
+            config.title = false;
+            config.tips = _typeof(config.tips) === 'object' ? config.tips : [config.tips, true];
+            config.tipsMore || layer.closeAll('tips');
+            break;
+    }
+
+    //建立容器
+    that.vessel(conType, function (html, titleHTML) {
+        $('body').append(html[0]);
+        conType ? function () {
+            config.type == 2 || config.type == 4 ? function () {
+                var $html = $(html[1]);
+                $html.find('.layui-layer-content').append(config.content);
+                $('body').append($html);
+            }() : function () {
+                if (!content.parents('.' + doms[0])[0]) {
+                    content.show().addClass('layui-layer-wrap').wrap(html[1]);
+                    $('#' + doms[0] + times).find('.' + doms[5]).before(titleHTML);
+                }
+            }();
+        }() : $('body').append(html[1]);
+        that.layero = $('#' + doms[0] + times);
+        config.scrollbar || doms.html.css('overflow', 'hidden').attr('layer-full', times);
+    }).auto(times);
+
+    config.type == 2 && layer.ie6 && that.layero.find('iframe').attr('src', content[0]);
+    $(document).off('keydown', _ready.enter).on('keydown', _ready.enter);
+    that.layero.on('keydown', function (e) {
+        $(document).off('keydown', _ready.enter);
+    });
+
+    //坐标自适应浏览器窗口尺寸
+    config.type == 4 ? that.tips() : that.offset();
+    if (config.fix) {
+        win.on('resize', function () {
+            that.offset();
+            (/^\d+%$/.test(config.area[0]) || /^\d+%$/.test(config.area[1])) && that.auto(times);
+            config.type == 4 && that.tips();
+        });
+    }
+
+    config.time <= 0 || setTimeout(function () {
+        layer.close(that.index);
+    }, config.time);
+    that.move().callback();
+
+    //为兼容jQuery3.0的css动画影响元素尺寸计算
+    if (doms.anim[config.shift]) {
+        that.layero.addClass(doms.anim[config.shift]);
+    };
+};
+
+//自适应
+Class.pt.auto = function (index) {
+    var that = this,
+        config = that.config,
+        layero = $('#' + doms[0] + index);
+    if (config.area[0] === '' && config.maxWidth > 0) {
+        //为了修复IE7下一个让人难以理解的bug
+        if (/MSIE 7/.test(navigator.userAgent) && config.btn) {
+            layero.width(layero.innerWidth());
+        }
+        layero.outerWidth() > config.maxWidth && layero.width(config.maxWidth);
+    }
+    var area = [layero.innerWidth(), layero.innerHeight()];
+    var titHeight = layero.find(doms[1]).outerHeight() || 0;
+    var btnHeight = layero.find('.' + doms[6]).outerHeight() || 0;
+
+    function setHeight(elem) {
+        elem = layero.find(elem);
+        elem.height(area[1] - titHeight - btnHeight - 2 * (parseFloat(elem.css('padding')) | 0));
+    }
+    switch (config.type) {
+        case 2:
+            setHeight('iframe');
+            break;
+        default:
+            if (config.area[1] === '') {
+                if (config.fix && area[1] >= win.height()) {
+                    area[1] = win.height();
+                    setHeight('.' + doms[5]);
+                }
+            } else {
+                setHeight('.' + doms[5]);
+            }
+            break;
+    }
+    return that;
+};
+
+//计算坐标
+Class.pt.offset = function () {
+    var that = this,
+        config = that.config,
+        layero = that.layero;
+    var area = [layero.outerWidth(), layero.outerHeight()];
+    var type = _typeof(config.offset) === 'object';
+    that.offsetTop = (win.height() - area[1]) / 2;
+    that.offsetLeft = (win.width() - area[0]) / 2;
+    if (type) {
+        that.offsetTop = config.offset[0];
+        that.offsetLeft = config.offset[1] || that.offsetLeft;
+    } else if (config.offset !== 'auto') {
+        that.offsetTop = config.offset;
+        if (config.offset === 'rb') {
+            //右下角
+            that.offsetTop = win.height() - area[1];
+            that.offsetLeft = win.width() - area[0];
+        }
+    }
+    if (!config.fix) {
+        that.offsetTop = /%$/.test(that.offsetTop) ? win.height() * parseFloat(that.offsetTop) / 100 : parseFloat(that.offsetTop);
+        that.offsetLeft = /%$/.test(that.offsetLeft) ? win.width() * parseFloat(that.offsetLeft) / 100 : parseFloat(that.offsetLeft);
+        that.offsetTop += win.scrollTop();
+        that.offsetLeft += win.scrollLeft();
+    }
+    layero.css({
+        top: that.offsetTop,
+        left: that.offsetLeft
+    });
+};
+
+//Tips
+Class.pt.tips = function () {
+    var that = this,
+        config = that.config,
+        layero = that.layero;
+    var layArea = [layero.outerWidth(), layero.outerHeight()],
+        follow = $(config.follow);
+    if (!follow[0]) follow = $('body');
+    var goal = {
+        width: follow.outerWidth(),
+        height: follow.outerHeight(),
+        top: follow.offset().top,
+        left: follow.offset().left
+    },
+        tipsG = layero.find('.layui-layer-TipsG');
+
+    var guide = config.tips[0];
+    config.tips[1] || tipsG.remove();
+
+    var tipsOffset = config.tipsOffset,
+        arrowOffset = config.arrowOffset || [0, 0],
+        verticalOffset = 10,
+        horizontalOffset = 10;
+
+    if (tipsOffset) {
+        if (typeof tipsOffset === 'number') {
+            verticalOffset = tipsOffset;
+        } else if (tipsOffset && tipsOffset.length) {
+            verticalOffset = tipsOffset[0] === undefined ? verticalOffset : tipsOffset[0];
+            horizontalOffset = tipsOffset[1] === undefined ? horizontalOffset : tipsOffset[1];
+        }
+    }
+
+    goal.autoLeft = function () {
+        if (config.disableAutoLeft !== true && goal.left + layArea[0] - win.width() > 0) {
+            goal.tipLeft = goal.left + goal.width - layArea[0];
+            tipsG.css({
+                right: 12,
+                left: 'auto'
+            });
+        } else {
+            goal.tipLeft = goal.left + horizontalOffset;
+        };
+    };
+
+    //辨别tips的方位
+    goal.where = [function () {
+        //上
+        goal.autoLeft();
+        goal.tipTop = goal.top - layArea[1] - verticalOffset;
+        tipsG.removeClass('layui-layer-TipsB').addClass('layui-layer-TipsT').css('border-right-color', config.tips[1]);
+    }, function () {
+        //右
+        goal.tipLeft = goal.left + goal.width + horizontalOffset;
+        goal.tipTop = goal.top;
+        tipsG.removeClass('layui-layer-TipsL').addClass('layui-layer-TipsR').css('border-bottom-color', config.tips[1]);
+    }, function () {
+        //下
+        goal.autoLeft();
+        goal.tipTop = goal.top + goal.height + verticalOffset;
+        tipsG.removeClass('layui-layer-TipsT').addClass('layui-layer-TipsB').css({
+            'border-right-color': config.tips[1],
+            'left': goal.left + goal.width / 2 - goal.tipLeft + arrowOffset[0]
+        });
+    }, function () {
+        //左
+        goal.tipLeft = goal.left - layArea[0] - horizontalOffset;
+        goal.tipTop = goal.top;
+        tipsG.removeClass('layui-layer-TipsR').addClass('layui-layer-TipsL').css('border-bottom-color', config.tips[1]);
+    }];
+    goal.where[guide - 1]();
+
+    /* 8*2为小三角形占据的空间 */
+    // if (guide === 1) {
+    //     goal.top - (win.scrollTop() + layArea[1] + 8 * 2) < 0 && goal.where[2]();
+    // } else if (guide === 2) {
+    //     win.width() - (goal.left + goal.width + layArea[0] + 8 * 2) > 0 || goal.where[3]()
+    // } else if (guide === 3) {
+    //     (goal.top - win.scrollTop() + goal.height + layArea[1] + 8 * 2) - win.height() > 0 && goal.where[0]();
+    // } else if (guide === 4) {
+    //     layArea[0] + 8 * 2 - goal.left > 0 && goal.where[1]()
+    // }
+
+    layero.find('.' + doms[5]).css({
+        'background-color': config.tips[1],
+        'padding-right': config.closeBtn ? '30px' : ''
+    });
+    layero.css({
+        left: goal.tipLeft - (config.fix ? win.scrollLeft() : 0),
+        top: goal.tipTop - (config.fix ? win.scrollTop() : 0)
+    });
+};
+
+//拖拽层
+Class.pt.move = function () {
+    var that = this,
+        config = that.config,
+        conf = {
+        setY: 0,
+        moveLayer: function moveLayer() {
+            var layero = conf.layero,
+                mgleft = parseInt(layero.css('margin-left'));
+            var lefts = parseInt(conf.move.css('left'));
+            mgleft === 0 || (lefts = lefts - mgleft);
+            if (layero.css('position') !== 'fixed') {
+                lefts = lefts - layero.parent().offset().left;
+                conf.setY = 0;
+            }
+            layero.css({
+                left: lefts,
+                top: parseInt(conf.move.css('top')) - conf.setY
+            });
+        }
+    };
+
+    var movedom = that.layero.find(config.move);
+    config.move && movedom.attr('move', 'ok');
+    movedom.css({
+        cursor: config.move ? 'move' : 'auto'
+    });
+
+    $(config.move).on('mousedown', function (M) {
+        M.preventDefault();
+        if ($(this).attr('move') === 'ok') {
+            conf.ismove = true;
+            conf.layero = $(this).parents('.' + doms[0]);
+            var xx = conf.layero.offset().left,
+                yy = conf.layero.offset().top,
+                ww = conf.layero.outerWidth() - 6,
+                hh = conf.layero.outerHeight() - 6;
+            if (!$('#layui-layer-moves')[0]) {
+                $('body').append('<div id="layui-layer-moves" class="layui-layer-moves" style="left:' + xx + 'px; top:' + yy + 'px; width:' + ww + 'px; height:' + hh + 'px; z-index:2147483584"></div>');
+            }
+            conf.move = $('#layui-layer-moves');
+            config.moveType && conf.move.css({
+                visibility: 'hidden'
+            });
+
+            conf.moveX = M.pageX - conf.move.position().left;
+            conf.moveY = M.pageY - conf.move.position().top;
+            conf.layero.css('position') !== 'fixed' || (conf.setY = win.scrollTop());
+        }
+    });
+
+    $(document).mousemove(function (M) {
+        if (conf.ismove) {
+            var offsetX = M.pageX - conf.moveX,
+                offsetY = M.pageY - conf.moveY;
+            M.preventDefault();
+
+            //控制元素不被拖出窗口外
+            if (!config.moveOut) {
+                conf.setY = win.scrollTop();
+                var setRig = win.width() - conf.move.outerWidth(),
+                    setTop = conf.setY;
+                offsetX < 0 && (offsetX = 0);
+                offsetX > setRig && (offsetX = setRig);
+                offsetY < setTop && (offsetY = setTop);
+                offsetY > win.height() - conf.move.outerHeight() + conf.setY && (offsetY = win.height() - conf.move.outerHeight() + conf.setY);
+            }
+
+            conf.move.css({
+                left: offsetX,
+                top: offsetY
+            });
+            config.moveType && conf.moveLayer();
+
+            offsetX = offsetY = setRig = setTop = null;
+        }
+    }).mouseup(function () {
+        try {
+            if (conf.ismove) {
+                conf.moveLayer();
+                conf.move.remove();
+                config.moveEnd && config.moveEnd();
+            }
+            conf.ismove = false;
+        } catch (e) {
+            conf.ismove = false;
+        }
+    });
+    return that;
+};
+
+Class.pt.callback = function () {
+    var that = this,
+        layero = that.layero,
+        config = that.config;
+    that.openLayer();
+    if (config.success) {
+        if (config.type == 2) {
+            layero.find('iframe').on('load', function () {
+                config.success(layero, that.index);
+            });
+        } else {
+            config.success(layero, that.index);
+        }
+    }
+    layer.ie6 && that.IE6(layero);
+
+    //按钮
+    layero.find('.' + doms[6]).children('a').on('click', function () {
+        var index = $(this).index();
+        if (index === 0) {
+            if (config.yes) {
+                config.yes(that.index, layero);
+            } else if (config['btn1']) {
+                config['btn1'](that.index, layero);
+            } else {
+                layer.close(that.index);
+            }
+        } else {
+            var close = config['btn' + (index + 1)] && config['btn' + (index + 1)](that.index, layero);
+            close === false || layer.close(that.index);
+        }
+    });
+
+    //取消
+    function cancel() {
+        var close = config.cancel && config.cancel(that.index, layero);
+        close === false || layer.close(that.index);
+    }
+
+    //右上角关闭回调
+    layero.find('.' + doms[7]).on('click', cancel);
+
+    //点遮罩关闭
+    if (config.shadeClose) {
+        $('#layui-layer-shade' + that.index).on('click', function () {
+            layer.close(that.index);
+        });
+    }
+
+    //最小化
+    layero.find('.layui-layer-min').on('click', function () {
+        var min = config.min && config.min(layero);
+        min === false || layer.min(that.index, config);
+    });
+
+    //全屏/还原
+    layero.find('.layui-layer-max').on('click', function () {
+        if ($(this).hasClass('layui-layer-maxmin')) {
+            layer.restore(that.index);
+            config.restore && config.restore(layero);
+        } else {
+            layer.full(that.index, config);
+            setTimeout(function () {
+                config.full && config.full(layero);
+            }, 100);
+        }
+    });
+
+    config.end && (_ready.end[that.index] = config.end);
+};
+
+//for ie6 恢复select
+_ready.reselect = function () {
+    $.each($('select'), function (index, value) {
+        var sthis = $(this);
+        if (!sthis.parents('.' + doms[0])[0]) {
+            sthis.attr('layer') == 1 && $('.' + doms[0]).length < 1 && sthis.removeAttr('layer').show();
+        }
+        sthis = null;
+    });
+};
+
+Class.pt.IE6 = function (layero) {
+    var that = this,
+        _ieTop = layero.offset().top;
+
+    //ie6的固定与相对定位
+    function ie6Fix() {
+        layero.css({
+            top: _ieTop + (that.config.fix ? win.scrollTop() : 0)
+        });
+    };
+    ie6Fix();
+    win.scroll(ie6Fix);
+
+    //隐藏select
+    $('select').each(function (index, value) {
+        var sthis = $(this);
+        if (!sthis.parents('.' + doms[0])[0]) {
+            sthis.css('display') === 'none' || sthis.attr({
+                'layer': '1'
+            }).hide();
+        }
+        sthis = null;
+    });
+};
+
+//需依赖原型的对外方法
+Class.pt.openLayer = function () {
+    var that = this;
+
+    //置顶当前窗口
+    layer.zIndex = that.config.zIndex;
+    layer.setTop = function (layero) {
+        var setZindex = function setZindex() {
+            layer.zIndex++;
+            layero.css('z-index', layer.zIndex + 1);
+        };
+        layer.zIndex = parseInt(layero[0].style.zIndex);
+        layero.on('mousedown', setZindex);
+        return layer.zIndex;
+    };
+};
+
+_ready.record = function (layero) {
+    var area = [layero.width(), layero.height(), layero.position().top, layero.position().left + parseFloat(layero.css('margin-left'))];
+    layero.find('.layui-layer-max').addClass('layui-layer-maxmin');
+    layero.attr({
+        area: area
+    });
+};
+
+_ready.rescollbar = function (index) {
+    if (doms.html.attr('layer-full') == index) {
+        if (doms.html[0].style.removeProperty) {
+            doms.html[0].style.removeProperty('overflow');
+        } else {
+            doms.html[0].style.removeAttribute('overflow');
+        }
+        doms.html.removeAttr('layer-full');
+    }
+};
+
+/** 内置成员 */
+
+window.layer = layer;
+
+//获取子iframe的DOM
+layer.getChildFrame = function (selector, index) {
+    index = index || $('.' + doms[4]).attr('times');
+    return $('#' + doms[0] + index).find('iframe').contents().find(selector);
+};
+
+//得到当前iframe层的索引，子iframe时使用
+layer.getFrameIndex = function (name) {
+    return $('#' + name).parents('.' + doms[4]).attr('times');
+};
+
+//iframe层自适应宽高
+layer.iframeAuto = function (index) {
+    if (!index) return;
+    var heg = layer.getChildFrame('html', index).outerHeight();
+    var layero = $('#' + doms[0] + index);
+    var titHeight = layero.find(doms[1]).outerHeight() || 0;
+    var btnHeight = layero.find('.' + doms[6]).outerHeight() || 0;
+    layero.css({
+        height: heg + titHeight + btnHeight
+    });
+    layero.find('iframe').css({
+        height: heg
+    });
+};
+
+//重置iframe url
+layer.iframeSrc = function (index, url) {
+    $('#' + doms[0] + index).find('iframe').attr('src', url);
+};
+
+//设定层的样式
+layer.style = function (index, options) {
+    var layero = $('#' + doms[0] + index),
+        type = layero.attr('type');
+    var titHeight = layero.find(doms[1]).outerHeight() || 0;
+    var btnHeight = layero.find('.' + doms[6]).outerHeight() || 0;
+    if (type === _ready.type[1] || type === _ready.type[2]) {
+        layero.css(options);
+        if (type === _ready.type[2]) {
+            layero.find('iframe').css({
+                height: parseFloat(options.height) - titHeight - btnHeight
+            });
+        }
+    }
+};
+
+//最小化
+layer.min = function (index, options) {
+    var layero = $('#' + doms[0] + index);
+    var titHeight = layero.find(doms[1]).outerHeight() || 0;
+    _ready.record(layero);
+    layer.style(index, {
+        width: 180,
+        height: titHeight,
+        overflow: 'hidden'
+    });
+    layero.find('.layui-layer-min').hide();
+    layero.attr('type') === 'page' && layero.find(doms[4]).hide();
+    _ready.rescollbar(index);
+};
+
+//还原
+layer.restore = function (index) {
+    var layero = $('#' + doms[0] + index),
+        area = layero.attr('area').split(',');
+    var type = layero.attr('type');
+    layer.style(index, {
+        width: parseFloat(area[0]),
+        height: parseFloat(area[1]),
+        top: parseFloat(area[2]),
+        left: parseFloat(area[3]),
+        overflow: 'visible'
+    });
+    layero.find('.layui-layer-max').removeClass('layui-layer-maxmin');
+    layero.find('.layui-layer-min').show();
+    layero.attr('type') === 'page' && layero.find(doms[4]).show();
+    _ready.rescollbar(index);
+};
+
+//全屏
+layer.full = function (index) {
+    var layero = $('#' + doms[0] + index),
+        timer;
+    _ready.record(layero);
+    if (!doms.html.attr('layer-full')) {
+        doms.html.css('overflow', 'hidden').attr('layer-full', index);
+    }
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+        var isfix = layero.css('position') === 'fixed';
+        layer.style(index, {
+            top: isfix ? 0 : win.scrollTop(),
+            left: isfix ? 0 : win.scrollLeft(),
+            width: win.width(),
+            height: win.height()
+        });
+        layero.find('.layui-layer-min').hide();
+    }, 100);
+};
+
+//改变title
+layer.title = function (name, index) {
+    var title = $('#' + doms[0] + (index || layer.index)).find(doms[1]);
+    title.html(name);
+};
+
+//关闭layer总方法
+layer.close = function (index) {
+    var layero = $('#' + doms[0] + index),
+        type = layero.attr('type');
+    if (!layero[0]) return;
+    if (type === _ready.type[1] && layero.attr('conType') === 'object') {
+        layero.children(':not(.' + doms[5] + ')').remove();
+        for (var i = 0; i < 2; i++) {
+            layero.find('.layui-layer-wrap').unwrap().hide();
+        }
+    } else {
+        //低版本IE 回收 iframe
+        if (type === _ready.type[2]) {
+            try {
+                var iframe = $('#' + doms[4] + index)[0];
+                iframe.contentWindow.document.write('');
+                iframe.contentWindow.close();
+                layero.find('.' + doms[5])[0].removeChild(iframe);
+            } catch (e) {}
+        }
+        layero[0].innerHTML = '';
+        layero.remove();
+    }
+    $('#layui-layer-moves, #layui-layer-shade' + index).remove();
+    layer.ie6 && _ready.reselect();
+    _ready.rescollbar(index);
+    $(document).off('keydown', _ready.enter);
+    typeof _ready.end[index] === 'function' && _ready.end[index]();
+    delete _ready.end[index];
+};
+
+//关闭所有层
+layer.closeAll = function (type) {
+    $.each($('.' + doms[0]), function () {
+        var othis = $(this);
+        var is = type ? othis.attr('type') === type : 1;
+        is && layer.close(othis.attr('times'));
+        is = null;
+    });
+};
+
+/**
+
+  拓展模块，layui开始合并在一起
+
+ */
+
+var cache = layer.cache || {},
+    skin = function skin(type) {
+    return cache.skin ? ' ' + cache.skin + ' ' + cache.skin + '-' + type : '';
+};
+
+//仿系统prompt
+layer.prompt = function (options, _yes) {
+    options = options || {};
+    if (typeof options === 'function') _yes = options;
+    var prompt,
+        content = options.formType == 2 ? '<textarea class="layui-layer-input">' + (options.value || '') + '</textarea>' : function () {
+        return '<input type="' + (options.formType == 1 ? 'password' : 'text') + '" class="layui-layer-input" value="' + (options.value || '') + '">';
+    }();
+    return layer.open($.extend({
+        btn: ['&#x786E;&#x5B9A;', '&#x53D6;&#x6D88;'],
+        content: content,
+        skin: 'layui-layer-prompt' + skin('prompt'),
+        success: function success(layero) {
+            prompt = layero.find('.layui-layer-input');
+            prompt.focus();
+        },
+        yes: function yes(index) {
+            var value = prompt.val();
+            if (value === '') {
+                prompt.focus();
+            } else if (value.length > (options.maxlength || 500)) {
+                layer.tips('&#x6700;&#x591A;&#x8F93;&#x5165;' + (options.maxlength || 500) + '&#x4E2A;&#x5B57;&#x6570;', prompt, {
+                    tips: 1
+                });
+            } else {
+                _yes && _yes(value, index, prompt);
+            }
+        }
+    }, options));
+};
+
+//tab层
+layer.tab = function (options) {
+    options = options || {};
+    var tab = options.tab || {};
+    return layer.open($.extend({
+        type: 1,
+        skin: 'layui-layer-tab' + skin('tab'),
+        title: function () {
+            var len = tab.length,
+                ii = 1,
+                str = '';
+            if (len > 0) {
+                str = '<span class="layui-layer-tabnow">' + tab[0].title + '</span>';
+                for (; ii < len; ii++) {
+                    str += '<span>' + tab[ii].title + '</span>';
+                }
+            }
+            return str;
+        }(),
+        content: '<ul class="layui-layer-tabmain">' + function () {
+            var len = tab.length,
+                ii = 1,
+                str = '';
+            if (len > 0) {
+                str = '<li class="layui-layer-tabli xubox_tab_layer">' + (tab[0].content || 'no content') + '</li>';
+                for (; ii < len; ii++) {
+                    str += '<li class="layui-layer-tabli">' + (tab[ii].content || 'no  content') + '</li>';
+                }
+            }
+            return str;
+        }() + '</ul>',
+        success: function success(layero) {
+            var btn = layero.find('.layui-layer-title').children();
+            var main = layero.find('.layui-layer-tabmain').children();
+            btn.on('mousedown', function (e) {
+                e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+                var othis = $(this),
+                    index = othis.index();
+                othis.addClass('layui-layer-tabnow').siblings().removeClass('layui-layer-tabnow');
+                main.eq(index).show().siblings().hide();
+                typeof options.change === 'function' && options.change(index);
+            });
+        }
+    }, options));
+};
+
+//相册层
+layer.photos = function (options, loop, key) {
+    var dict = {};
+    options = options || {};
+    if (!options.photos) return;
+    var type = options.photos.constructor === Object;
+    var photos = type ? options.photos : {},
+        data = photos.data || [];
+    var start = photos.start || 0;
+    dict.imgIndex = (start | 0) + 1;
+
+    options.img = options.img || 'img';
+
+    if (!type) {
+        //页面直接获取
+        var parent = $(options.photos),
+            pushData = function pushData() {
+            data = [];
+            parent.find(options.img).each(function (index) {
+                var othis = $(this);
+                othis.attr('layer-index', index);
+                data.push({
+                    alt: othis.attr('alt'),
+                    pid: othis.attr('layer-pid'),
+                    src: othis.attr('layer-src') || othis.attr('src'),
+                    thumb: othis.attr('src')
+                });
+            });
+        };
+
+        pushData();
+
+        if (data.length === 0) return;
+
+        loop || parent.on('click', options.img, function () {
+            var othis = $(this),
+                index = othis.attr('layer-index');
+            layer.photos($.extend(options, {
+                photos: {
+                    start: index,
+                    data: data,
+                    tab: options.tab
+                },
+                full: options.full
+            }), true);
+            pushData();
+        });
+
+        //不直接弹出
+        if (!loop) return;
+    } else if (data.length === 0) {
+        return layer.msg('&#x6CA1;&#x6709;&#x56FE;&#x7247;');
+    }
+
+    //上一张
+    dict.imgprev = function (key) {
+        dict.imgIndex--;
+        if (dict.imgIndex < 1) {
+            dict.imgIndex = data.length;
+        }
+        dict.tabimg(key);
+    };
+
+    //下一张
+    dict.imgnext = function (key, errorMsg) {
+        dict.imgIndex++;
+        if (dict.imgIndex > data.length) {
+            dict.imgIndex = 1;
+            if (errorMsg) {
+                return;
+            };
+        }
+        dict.tabimg(key);
+    };
+
+    //方向键
+    dict.keyup = function (event) {
+        if (!dict.end) {
+            var code = event.keyCode;
+            event.preventDefault();
+            if (code === 37) {
+                dict.imgprev(true);
+            } else if (code === 39) {
+                dict.imgnext(true);
+            } else if (code === 27) {
+                layer.close(dict.index);
+            }
+        }
+    };
+
+    //切换
+    dict.tabimg = function (key) {
+        if (data.length <= 1) return;
+        photos.start = dict.imgIndex - 1;
+        layer.close(dict.index);
+        layer.photos(options, true, key);
+    };
+
+    //一些动作
+    dict.event = function () {
+        dict.bigimg.hover(function () {
+            dict.imgsee.show();
+        }, function () {
+            dict.imgsee.hide();
+        });
+
+        dict.bigimg.find('.layui-layer-imgprev').on('click', function (event) {
+            event.preventDefault();
+            dict.imgprev();
+        });
+
+        dict.bigimg.find('.layui-layer-imgnext').on('click', function (event) {
+            event.preventDefault();
+            dict.imgnext();
+        });
+
+        $(document).on('keyup', dict.keyup);
+    };
+
+    //图片预加载
+    function loadImage(url, callback, error) {
+        var img = new Image();
+        img.src = url;
+        if (img.complete) {
+            return callback(img);
+        }
+        img.onload = function () {
+            img.onload = null;
+            callback(img);
+        };
+        img.onerror = function (e) {
+            img.onerror = null;
+            error(e);
+        };
+    };
+
+    dict.loadi = layer.load(1, {
+        shade: 'shade' in options ? false : 0.9,
+        scrollbar: false
+    });
+    loadImage(data[start].src, function (img) {
+        layer.close(dict.loadi);
+        dict.index = layer.open($.extend({
+            type: 1,
+            area: function () {
+                var imgarea = [img.width, img.height];
+                var winarea = [$(window).width() - 50, $(window).height() - 50];
+                if (!options.full && imgarea[0] > winarea[0]) {
+                    imgarea[0] = winarea[0];
+                    imgarea[1] = imgarea[0] * img.height / img.width;
+                }
+                return [imgarea[0] + 'px', imgarea[1] + 'px'];
+            }(),
+            title: false,
+            shade: 0.9,
+            shadeClose: true,
+            closeBtn: false,
+            move: '.layui-layer-phimg img',
+            moveType: 1,
+            scrollbar: false,
+            moveOut: true,
+            shift: Math.random() * 5 | 0,
+            skin: 'layui-layer-photos' + skin('photos'),
+            content: '<div class="layui-layer-phimg">' + '<img src="' + data[start].src + '" alt="' + (data[start].alt || '') + '" layer-pid="' + data[start].pid + '">' + '<div class="layui-layer-imgsee">' + (data.length > 1 ? '<span class="layui-layer-imguide"><a href="javascript:;" class="layui-layer-iconext layui-layer-imgprev"></a><a href="javascript:;" class="layui-layer-iconext layui-layer-imgnext"></a></span>' : '') + '<div class="layui-layer-imgbar" style="display:' + (key ? 'block' : '') + '"><span class="layui-layer-imgtit"><a href="javascript:;">' + (data[start].alt || '') + '</a><em>' + dict.imgIndex + '/' + data.length + '</em></span></div>' + '</div>' + '</div>',
+            success: function success(layero, index) {
+                dict.bigimg = layero.find('.layui-layer-phimg');
+                dict.imgsee = layero.find('.layui-layer-imguide,.layui-layer-imgbar');
+                dict.event(layero);
+                options.tab && options.tab(data[start], layero);
+            },
+            end: function end() {
+                dict.end = true;
+                $(document).off('keyup', dict.keyup);
+            }
+        }, options));
+    }, function () {
+        layer.close(dict.loadi);
+        layer.msg('&#x5F53;&#x524D;&#x56FE;&#x7247;&#x5730;&#x5740;&#x5F02;&#x5E38;<br>&#x662F;&#x5426;&#x7EE7;&#x7EED;&#x67E5;&#x770B;&#x4E0B;&#x4E00;&#x5F20;&#xFF1F;', {
+            time: 30000,
+            btn: ['&#x4E0B;&#x4E00;&#x5F20;', '&#x4E0D;&#x770B;&#x4E86;'],
+            yes: function yes() {
+                data.length > 1 && dict.imgnext(true, true);
+            }
+        });
+    });
+};
+
+//主入口
+_ready.run = function () {
+    $ = jQuery;
+    win = $(window);
+    doms.html = $('html');
+    layer.open = function (deliver) {
+        var o = new Class(deliver);
+        return o.index;
+    };
+};
+
+_ready.run();
+
+exports.layer = layer;
+
+/***/ }),
+/* 29 */
+/*!**************************************************!*\
+  !*** ./components/common/layer/2.4.0/index.scss ***!
+  \**************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 30 */
+/*!*********************************************************!*\
+  !*** ./components/searchlist/components/right/index.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _ = __webpack_require__(/*! @/common/ejs/2.5.2 */ 0);
+
+var ejs = _interopRequireWildcard(_);
+
+var _config = __webpack_require__(/*! @/searchlist/config.js */ 6);
+
+var _right = __webpack_require__(/*! ./template/right.ejs */ 31);
+
+var _right2 = _interopRequireDefault(_right);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+
+var hasResult = $('#hasResult') && $('#hasResult').val() == 'true' ? true : false; /* eslint-disable */
+
+var isSliding = false,
+    position = 1;
+exports["default"] = {
+    bind: function bind(len) {
+        var self = this;
+        this.$container.on("click", ".icon_btn_left", function () {
+            if (isSliding) return;
+            if (position > 1) {
+                var prevPosition = position;
+                var n = position - 1;
+                if (n >= 5) {
+                    position = position - 5;
+                } else {
+                    position = position - n;
+                }
+                var top = (prevPosition - position) * 75;
+                isSliding = true;
+                self.$container.find(".seller_item").animate({
+                    top: "+=" + top
+                }, "normal", "linear", function () {
+                    isSliding = false;
+                });
+            }
+        }).on("click", ".icon_btn_right", function () {
+            if (isSliding) return;
+            if (position + 5 <= len) {
+                var prevPosition = position;
+                var n = len - position - 4;
+                if (n >= 5) {
+                    position = position + 5;
+                } else {
+                    position = position + n;
+                }
+                var top = (position - prevPosition) * 75;
+                isSliding = true;
+                self.$container.find(".seller_item").animate({
+                    top: "-=" + top
+                }, "normal", "linear", function () {
+                    isSliding = false;
+                });
+            }
+        });
+    },
+    init: function init() {
+        if (!hasResult) return;
+        var self = this;
+        this.$container = $('#sideWrap');
+        this.getData().then(function (i) {
+            self.render(i);
+            self.bind(i.history.length);
+        })["catch"](function (i) {
+            console.log('err', i);
+        });
+    },
+    timer: function timer() {
+        var $item = this.$container.find('.time_des');
+        if (!$item.length) {
+            return;
+        }
+        $item.each(function (index, item) {
+            var $timer = $(item);
+            var startTime = solveIeBug($timer.attr("start-data"));
+            var endDataTime = $timer.attr("end-data").length ? solveIeBug($timer.attr("end-data")) : '2020-12-31';
+            var tnIndexDay = $timer.find(".tnIndexDay")[0];
+            var tnIndexH = $timer.find(".tnIndexH")[0];
+            var tnIndexM = $timer.find(".tnIndexM")[0];
+            var tnIndexS = $timer.find(".tnIndexS")[0];
+            var spaceToEnd = $timer.find(".spaceToEnd")[0];
+            var isStart = false;
+            var isEnd = false;
+            var clearInt = "";
+            var clearTm = "";
+            var EndTimeMsg = void 0;
+
+            var EndTime = new Date(startTime);
+            var endBTime = new Date(endDataTime);
+
+            var currentDate = new Date();
+            var days = EndTime - currentDate;
+            var day2 = endBTime - currentDate;
+
+            if (day2 < 0) {
+                isStart = false;
+                isEnd = false;
+            } else if (days < 0 && day2 > 0) {
+                isEnd = true;
+                isStart = false;
+                spaceToEnd.innerHTML = "距结束";
+                EndTimeMsg = parseInt(day2 / 1000); //精确到秒
+                clearInt = setInterval(countTime, 1000);
+            } else {
+                isStart = true;
+                isEnd = true;
+                spaceToEnd.innerHTML = "距开始";
+                EndTimeMsg = parseInt(days / 1000); //精确到秒
+                clearInt = setInterval(countTime, 1000);
+            }
+            function solveIeBug(s_time) {
+                var bTime = s_time;
+                if (bTime == '') {
+                    return;
+                } else {
+                    var timePar = bTime.split(' ');
+                    var timeDate = timePar[0].split('-');
+                    bTime = timeDate[1] + '/' + timeDate[2] + '/' + timeDate[0];
+                    var later = new Date(bTime);
+                    var timeHour = timePar[1].split(':');
+                    later.setHours(timeHour[0], timeHour[1]);
+                    later.setDate(later.getDate());
+                    return later;
+                }
+            }
+            function countTime() {
+                var h = Math.floor(EndTimeMsg / 60 / 60);
+                var m = Math.floor((EndTimeMsg - h * 60 * 60) / 60);
+                var s = Math.floor(EndTimeMsg - h * 60 * 60 - m * 60);
+                var d = parseInt(h / 24);
+                tnIndexDay.innerHTML = d;
+                tnIndexH.innerHTML = h - d * 24;
+                tnIndexM.innerHTML = m;
+                tnIndexS.innerHTML = s;
+                EndTimeMsg--;
+                if (EndTimeMsg < 0) {
+                    var nowDate = new Date();
+                    if (isEnd) {
+
+                        if (endBTime - nowDate < 0) {
+                            isEnd = false;
+                            clearTimeout(clearTm);
+                            return false;
+                        }
+                        spaceToEnd.innerHTML = "距结束";
+                        day2 = endBTime - EndTime;
+                        EndTimeMsg = parseInt(day2 / 1000); //精确到秒
+                        clearTm = setTimeout("class='list_stl'()", 1000);
+                    } else {
+
+                        clearInterval(clearInt);
+                    }
+                    tnIndexDay.innerHTML = "00";
+                    tnIndexH.innerHTML = "00";
+                    tnIndexM.innerHTML = "00";
+                    tnIndexS.innerHTML = "00";;
+                }
+            }
+        });
+    },
+    getCookie: function getCookie(name) {
+        var arr = void 0,
+            reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+        if (arr = document.cookie.match(reg)) return unescape(arr[2]);else return null;
+    },
+    buildUrl: function buildUrl() {
+        var params = {
+            bookCityCode: $('#bookCity').val(),
+            keyword: $('#b_queryKey').val() ? encodeURIComponent($('#b_queryKey').val()) : null,
+            tabKey: $('#tabKey').val(),
+            poiId: $('#poiId').val(),
+            pcat: $('#pcat').val() || null,
+            catString: $('#catString').val() || null,
+            paramType: $('#paramType').val() || null,
+            sourceType: $('#isClassification') && $('#isClassification').val() == 'true' ? '1' : '0',
+            userId: this.getCookie('tuniuuser_id') || 0,
+            uniqueKey: this.getCookie('_tact') || 0
+        };
+        return app_url('search_complex/ajaxGetRightRecommend?' + (0, _config.queryStringify)(params));
+    },
+    getData: function getData() {
+        // let url = '/search_complex/ajaxGetRightRecommend?bookCityCode=' + $('#bookCity').val() + '&keyword=' + encodeURIComponent($('#queryKey').val()) + '&tabKey=' + $('#tabKey').val() + '&poiId=' + $('#poiId').val();
+        var url = this.buildUrl();
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                // data: getFreeFlightParams(),
+                success: function success(res) {
+                    if (res && res.success && res.data) {
+                        resolve(res.data);
+                    } else {
+                        reject(res);
+                    }
+                },
+                error: function error(res) {
+                    reject(res);
+                }
+            });
+        });
+    },
+    render: function render(i) {
+        var html = ejs.compile(_right2["default"])({
+            data: i,
+            isAbroad: $('#isAbroad') && $('#isAbroad').val() == 'true' ? true : false
+        });
+        this.$container.html(html);
+        this.timer();
+    }
+};
+
+/***/ }),
+/* 31 */
+/*!*******************************************************************!*\
+  !*** ./components/searchlist/components/right/template/right.ejs ***!
+  \*******************************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports) {
+
+module.exports = "<% var searchKey='' ; \n\tsearchKey = $('#queryKey').val();  \n\tvar sale = data.sale;\n\tvar guideInfo = data.guideInfo;\n\tvar history = data.history || [];\n\tvar isClassification = $('#isClassification') && $('#isClassification').val() == 'true' ? true : false;\n\tvar parentClassName = $('#parentClassName') && $('#parentClassName').val() != 'null' ? $('#parentClassName').val() : null;\n\tvar childClassName = $('#childClassName') && $('#childClassName').val() != 'null' ? $('#childClassName').val() : null;\n\tvar buildStrForM = function(){\n        var m;\n        if(isClassification){\n            if($('#paramType').val() != 3) {\n                m = (parentClassName ? parentClassName + '-': '') + $('#poiName').val();\n            } else {\n                m = childClassName ? childClassName : '';\n            }\n        }else{\n            m = searchKey;\n        }\n        return m;\n    }\n\tfunction weatherIcon(name) {\n\t\tswitch(name){\n\t\t    case \"中到大雨\":\n\t\t        return  \"icon-heavy-rain\";\n\t\t    break;\n\t\t    case \"小到中雨\":\n\t\t        return \"icon-m-rain\";\n\t\t    break;\n\t\t    case \"小到中雪\":\n\t\t        return \"icon-m-snow\";\n\t\t    break;\n\t\t    case \"雷阵雨伴有冰雹\":\n\t\t        return \"icon-thundershower\";\n\t\t    break;\n\t\t    case \"特大暴雨\":\n\t\t        return \"icon-severe-storm\";\n\t\t    break;\n\t\t    case \"大到暴雨\":\n\t\t        return \"icon-storm\";\n\t\t    break;\n\t\t    case \"大暴雨\":\n\t\t        return \"icon-heavy-storm\";\n\t\t    break;\n\t\t    case \"中雨\":\n\t\t        return \"icon-m-rain\";\n\t\t    break;\n\t\t    case \"中雪\":\n\t\t        return \"icon-m-snow\";\n\t\t    break;\n\t\t    case \"冰粒\":\n\t\t        return \"icon-hail\";\n\t\t    break;\n\t\t    case \"冰针\":\n\t\t        return \"icon-hail\";\n\t\t    break;\n\t\t    case \"冰雹\":\n\t\t        return \"icon-hail\";\n\t\t    break;\n\t\t    case \"冻雨\":\n\t\t        return \"icon-light-rain\";\n\t\t    break;\n\t\t    case \"冻雾\":\n\t\t        return \"icon-ice-foggy\";\n\t\t    break;\n\t\t    case \"多云\":\n\t\t        return \"icon-cloudy\";\n\t\t    break;\n\t\t    case \"大部晴朗\":\n\t\t        return \"icon-sunny\";\n\t\t    break;\n\t\t    case \"大雨\":\n\t\t        return \"icon-heavy-rain\";\n\t\t    break;\n\t\t    case \"大雪\":\n\t\t        return \"icon-heavy-snow\";\n\t\t    break;\n\t\t    case \"小阵雨\":\n\t\t        return \"icon-shower\";\n\t\t    break;\n\t\t    case \"小阵雪\":\n\t\t        return \"icon-snow-flurry\";\n\t\t    break;\n\t\t    case \"小雨\":\n\t\t        return \"icon-light-rain\";\n\t\t    break;\n\t\t    case \"小雪\":\n\t\t        return \"icon-l-snow\";\n\t\t    break;\n\t\t    case \"少云\":\n\t\t        return \"icon-cloudy\";\n\t\t    break;\n\t\t    case \"尘卷风\":\n\t\t        return \"icon-sunny\";\n\t\t    break;\n\t\t    case \"局部阵雨\":\n\t\t        return \"icon-shower\";\n\t\t    break;\n\t\t    case \"强沙尘暴\":\n\t\t        return \"icon-snow-duststorm\";\n\t\t    break;\n\t\t    case \"强阵雨\":\n\t\t        return \"icon-shower\";\n\t\t    break;\n\t\t    case \"扬沙\":\n\t\t        return \"icon-snow-sand\";\n\t\t    break;\n\t\t    case \"晴\":\n\t\t        return \"icon-sunny\";\n\t\t    break;\n\t\t    case \"暴雨\":\n\t\t        return \"icon-sunny\";\n\t\t    break;\n\t\t    case \"暴雪\":\n\t\t        return \"icon-storm\";\n\t\t    break;\n\t\t    case \"沙尘暴\":\n\t\t        return \"icon-snow-duststorm\";\n\t\t    break;\n\t\t    case \"浮尘\":\n\t\t        return \"icon-snow-dust\";\n\t\t    break;\n\t\t    case \"阴\":\n\t\t        return \"icon-overcast\";\n\t\t    break;\n\t\t    case \"雷阵雨\":\n\t\t        return \"icon-thundershower\";\n\t\t    break;\n\t\t    case \"阵雨\":\n\t\t        return \"icon-shower\";\n\t\t    break;\n\t\t    case \"阵雪\":\n\t\t        return \"icon-snow-flurry\";\n\t\t    break;\n\t\t    case \"雨夹雪\":\n\t\t        return \"icon-sleet\";\n\t\t    break;\n\t\t    case \"雪\":\n\t\t        return \"icon-l-snow\";\n\t\t    break;\n\t\t    case \"雷暴\":\n\t\t        return \"icon-thunderstorm\";\n\t\t    break;\n\t\t    case \"雷电\":\n\t\t        return \"icon-thunderstorm\";\n\t\t    break;\n\t\t    case \"雾\":\n\t\t        return \"icon-foggy\";\n\t\t    break;\n\t\t    case \"雨\":\n\t\t        return \"icon-light-rain\";\n\t\t    break\n\t\t    default:\n\t\t    return '';\n\n\t\t}\n\t}\n%>\n\t<input type=\"hidden\" id=\"ga\" value=\"<%= searchKey%>\" />\n\t<!-- 列表页右侧区块 start -->\n\t<% if ( sale && sale.length > 0 ){ %>\n\t\t<div class=\"list sideblock\">\n\t\t\t<div class=\"carouselblock\">\n\t\t\t\t<div class=\"carouselheader\">\n\t\t\t\t\t清仓特卖\n\t\t\t\t</div>\n\t\t\t\t<div class=\"carousel\">\n\t\t\t\t\t<ul class=\"temai\">\n\t\t\t\t\t\t<% sale.forEach(function(pro,index){ %>\n\t\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t\t<div class=\"tm_prod\">\n\t\t\t\t\t\t\t\t\t<% \n\t\t\t\t\t\t\t\t\t\tvar aUrl='' , picUrl='' ; \n\t\t\t\t\t\t\t\t\t\tif( pro.url && pro.url !='' ) { \n\t\t\t\t\t\t\t\t\t\t\taUrl = pro.url.replace(/^(http:|https:)/ig,''); \n\t\t\t\t\t\t\t\t\t\t\t} \n\t\t\t\t\t\t\t\t\t\tif( pro.picUrl && pro.picUrl !='' ) { \n\t\t\t\t\t\t\t\t\t\t\tpicUrl=pro.picUrl.replace(/^(http:|https:)/ig,''); \n\t\t\t\t\t\t\t\t\t\t\t} \n\t\t\t\t\t\t\t\t\t%>\n\t\t\t\t\t\t\t\t\t\t<a href=\"<%= aUrl%>\" class=\"tm_img\" target=\"_blank\" m=\"点击_右侧推荐_清仓特卖_<%- buildStrForM() %>_<%= index+1 %>_<%= pro.productId %>\">\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"<%= picUrl %>\"\n\t\t\t\t\t\t\t\t\t\t\twidth=\"160\" height=\"90\" />\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t<% var className='' , titleName='' ; %>\n\t\t\t\t\t\t\t\t\t\t<% if(pro.saleType == 5000){ \n\t\t\t\t\t\t\t\t\t\t\t\tclassName='spe_icon_miao' ; \n\t\t\t\t\t\t\t\t\t\t\t\ttitleName='秒杀'; \n\t\t\t\t\t\t\t\t\t\t\t} else if(pro.saleType==4000) { \n\t\t\t\t\t\t\t\t\t\t\t\tclassName ='spe_icon_wei' ; \n\t\t\t\t\t\t\t\t\t\t\t\ttitleName='尾货'; \n\t\t\t\t\t\t\t\t\t\t} %>\n\t\t\t\t\t\t\t\t\t<p class=\"prod_lab <%= className %>\">\n\t\t\t\t\t\t\t\t\t\t<span>\n\t\t\t\t\t\t\t\t\t\t\t<%= titleName %>\n\t\t\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t\t\t<p class=\"time_bg\">\n\t\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t\t\t<% var i = \"\" ; %>\n\t\t\t\t\t\t\t\t\t<% if(index==0 ) { \n\t\t\t\t\t\t\t\t\t\ti='' ; \n\t\t\t\t\t\t\t\t\t} else { \n\t\t\t\t\t\t\t\t\t\ti = index; \n\t\t\t\t\t\t\t\t\t} %>\n\t\t\t\t\t\t\t\t\t<p end-data=\"<%= pro.campaignEndTime %>\" start-data=\"<%= pro.campaignBeginTime %>\" id=\"timeDes<%= i %>\" class=\"time_des\">\n\t\t\t\t\t\t\t\t\t\t<span class=\"spaceToEnd\">\n                                        </span>:<span class=\"tnIndexDay\">0</span>天<span class=\"tnIndexH\">0</span>时<span class=\"tnIndexM\">0</span>分<span class=\"tnIndexS\">0</span>秒\n\n\t\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<dl class=\"tm_line\">\n\t\t\t\t\t\t\t\t\t<dt class=\"\">\n\t\t\t\t\t\t\t\t\t\t<a href=\"<%= aUrl %>\" class=\"\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t<%= pro.productName %>\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</dt>\n\t\t\t\t\t\t\t\t\t<dd class=\"tm_price\">\n\t\t\t\t\t\t\t\t\t\t<p>\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"tn_price\">\n\t\t\t\t\t\t\t\t\t\t\t\t<% if(pro.price > 0) {%>\n\t\t\t\t\t\t\t\t\t\t\t\t\t&yen;<em><%= pro.price %></em>起\n\t\t\t\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t\t\t<% } else {%>\n\t\t\t\t\t\t\t\t\t\t\t\t<em>\n\t\t\t\t\t\t\t\t\t\t\t\t\t请电询\n\t\t\t\t\t\t\t\t\t\t\t\t</em>\n\t\t\t\t\t\t\t\t\t\t\t\t<% } %>\n\t\t\t\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"tm_zk\" style=\"display:none;\"><%- pro.discount %>折</span>\n\t\t\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t\t\t</dd>\n\t\t\t\t\t\t\t\t</dl>\n\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t<% }) %>\n\t\t\t\t\t</ul>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t<% } %>\n\t<!-- 列表页右侧区块 end -->\n\t<!-- 牛人定制 start-->\n\t<div class=\"dingzhi sideblock\">\n\t\t<a target=\"_blank\" href=\"//www.tuniu.com/bang/\" rel=\"nofollow\"\n\t\ttitle=\"牛人定制\" m=\"点击_右侧推荐_牛人定制_<%- buildStrForM() %>_1_牛人定制\" class=\"nr-ding\">\n\t\t\t<img src=\"//m4.tuniucdn.com/fb2/t1/G5/M00/09/36/Cii-slomaN2IEj4OAAARz8oIlJwAAAcXwP-sokAABHn133.png\"\n\t\t\talt=\"牛人定制\" />\n\t\t</a>\n\t</div>\n\t<!-- 牛人定制 end-->\n\t<% if(isAbroad) {%>\n\t\t<div class=\"quanqiugou sideblock\" style=\"padding-top: 0;\">\n\t        <a target=\"_blank\" href=\"//mkk.tuniu.com/qqg/shopping\" rel=\"nofollow\" title=\"全球购\" m=\"点击_右侧推荐_全球购_<%- buildStrForM() %>_1_全球购\">\n\t            <img src=\"https://m.tuniucdn.com/fb2/t1/G2/M00/45/49/Cii-T1jKPg-IejFYAABFiYHjEGkAAIlnQFdlKsAAEWh953.png\" alt=\"全球购\" width=\"100%\">\n\t        </a>\n\t    </div>\n    <% } %>\n\n\t<% if(guideInfo) { %>\n\t<% var trip = guideInfo.trip || null %>\n\t\t<!-- 出行 start--> \n\t    <% if(guideInfo.transport && (guideInfo.transport.air || guideInfo.transport.car || guideInfo.transport.train)) {%>\n\t       <div class=\"chuxing sideblock\"> \n\t        <div class=\"carouselblock\"> \n\t         <div class=\"carouselheader\">\n\t          <p class=\"tit\"><%= guideInfo.poiName%>出行</p>\n\t         </div> \n\t         <div class=\"carousel\"> \n\t          <ul> \n\t          <% if (guideInfo.transport.air) { %>\n\t            <% var air = guideInfo.transport.air; %>\n\t            <li class=\"clearfix\">\n\t                <a href=\"<%= air.url.replace(/^(http:|https:)/ig,'') %>\" target=\"_blank\" m=\"点击_右侧推荐_出行_<%- buildStrForM() %>_1_飞机票\">\n\t                    <span class=\"side-icon icon-plane\"></span>\n\t                    <span class=\"word\">飞机票</span>\n\t                    <span class=\"price\"><b>&yen;</b><i><%= air.price %></i>起</span>\n\t                </a> \n\t            </li> \n\t            <% } %>\n\n\t          <% if (guideInfo.transport.train) { %>\n\t          <% var train = guideInfo.transport.train; %>\n\t            <li class=\"clearfix\">\n\t                <a href=\"<%= train.url.replace(/^(http:|https:)/ig,'') %>\" target=\"_blank\" m=\"点击_右侧推荐_出行_<%= searchKey%>_1_火车票\">\n\t                    <span class=\"side-icon icon-train\"></span>\n\t                    <span class=\"word\">火车票</span>\n\t                    <span class=\"price\"><b>&yen;</b><i><%= train.price %></i>起</span>\n\t                </a> \n\t            </li> \n\t          <% } %>\n\n\t          <% if(guideInfo.transport.car) {%>\n\t          <% var car = guideInfo.transport.car;%>\n\t            <li class=\"clearfix\">\n\t                <a href=\"<%= car.url.replace(/^(http:|https:)/ig,'') %>\" target=\"_blank\" m=\"点击_右侧推荐_出行_<%= searchKey%>_1_汽车票\">\n\t                    <span class=\"side-icon icon-car\"></span>\n\t                    <span class=\"word\">汽车票</span>\n\t                    <span class=\"price\"><b>&yen;</b><i><%= car.price%></i>起</span>\n\t                </a> \n\t            </li> \n\t          <% } %>\n\n\t          </ul>\n\t        </div>\n\t        </div>\n\t        </div>\n\t    <% } %>\n\t    <!-- 出行 end--> \n        <!-- 天气 start--> \n        <% if(trip) {%>\n\t    <div class=\"side-weather sideblock\"> \n\t        <div class=\"carouselblock\">\n\t            <div class=\"carouselheader clearfix\"> \n\t\t\t\t\t<p class=\"tit\" <% if(!(trip.weatherList && trip.weatherList.length > 0)) {%>style=\"width:100%;\"<%}%> title=\"<%= guideInfo.poiName %>\">\n\t\t\t\t\t\t<%= guideInfo.poiName %>攻略</p>\n\t                <% if(trip.weatherList && trip.weatherList.length > 0) {%>\n\t                    <dl class=\"weather\"> \n\t                        <dt>\n\t                            <span class=\"weather-date\">今天</span> \n\t                            <i class=\"weather-icon <%= weatherIcon(trip.weatherList[0].weather)%>\"></i> \n\t                            <span class=\"weather-text\"><%= trip.weatherList[0].temperature%>℃</span> \n\t                            <i class=\"arrow\"></i> \n\t                        </dt> \n\t                        <% if(trip.weatherList.length > 2){%>\n\t                        <dd>\n\t                        <% trip.weatherList.forEach(function(info, index) { %>\n\t                            <% if (index > 0) {%>\n\t                            <div class=\"list\"> \n\t                                <span class=\"weather-date\"><%= index == 1? '明天': '后天'; %></span> \n\t                                <i class=\"weather-icon <%= weatherIcon(info.weather)%>\"></i> \n\t                                <span class=\"weather-text\"><%= info.temperature%>℃</span> \n\t                            </div> \n\t                            <% } %>\n\t                        <% }) %>\n\t                        </dd> \n\t                        <%}%>\n\t                    </dl>\n\t                <% } %> \n\t            </div>\n\t            <div class=\"carousel\">\n\t                <% if(guideInfo.trip.intro) { %> \n\t                    <div class=\"dess\">\n\t                        <p> <%- guideInfo.trip.intro.length > 25 ? guideInfo.trip.intro.slice(0,34)+'...' : guideInfo.trip.intro %></p> \n\t                    </div>\n\t                <% } %>\n\t                <% if(guideInfo.trip.tab && guideInfo.trip.tab.length) { %> \n\t                    <div class=\"tip\">\n\t                        <% guideInfo.trip.tab.forEach(function(item, index){ %> \n\t                            <a href=\"<%= item.url.replace(/^(http:|https:)/ig,'') %>\"  target=\"_blank\" m=\"点击_右侧推荐_攻略_<%- buildStrForM() %>_<%= index+1%>_<%= item.key%>\"><%= item.key%></a>\n\t                        <% }) %>                     \n\t                    </div>\n\t                <% } %>\n\t                <% if(guideInfo.trip.imageTag && guideInfo.trip.imageTag.length) { %>\n\t                    <div class=\"tit\">\n\t                        <%= guideInfo.poiName %><span>印象</span> \n\t                    </div>\n\t                    <div class=\"impression-side\">\n\t                        <% guideInfo.trip.imageTag.forEach(function(item, index) { %> \n\t                        <a href=\"<%= item.url.replace(/^(http:|https:)/ig,'')%>\" target=\"_blank\" m=\"点击_右侧推荐_印象_<%- buildStrForM() %>_<%= index+1%>_<%= item.tagName%>\"> <%= item.tagName%></a>\n\t                        <% }) %> \n\t                    </div>                \n\t                <% } %>\n\t                <% if(guideInfo.trip.tripContentList && guideInfo.trip.tripContentList.length) { %>\n\t                    <div class=\"tit\">\n\t                        <%= guideInfo.poiName %>\n\t                        <span>游记</span>\n\t                    </div>\n\t                    <div class=\"travels\"> \n\t                      <% guideInfo.trip.tripContentList.forEach(function(item, index) { %> \n\t                       <a href=\"<%= item.contentUrl.replace(/^(http:|https:)/ig,'')%>\" target=\"_blank\" m=\"点击_右侧推荐_游记_<%- buildStrForM() %>_<%= index+1%>_<%= item.contentName%>\">\n\t                       <i class=\"icon icon-travels\"></i><%= item.contentName%></a>\n\t                       <% })%> \n\t                    </div> \n\t                <% } %>  \n\t            </div>  \n\t        </div>\n\t    </div>\n\t    <% } %>  \n\t    <!-- 天气 end-->    \n\t<% } %>\n\t<%if(history && history.length){%>\n\t    <div id=\"guessyoulike\" class=\"guessyoulike an_mo\" liwithhan=\"category_最近访问\">\n\t        <div class=\"guesslike_history\" id=\"guesslike_history\">\n\t            <ul class=\"tabs clearfix\">\n\t                <li class=\"current\">浏览历史</li>\n\t            </ul>\n\t            <div class=\"tab_contents datalazyload no-action\" data-lazyload-type=\"data\" data-lazyload-from=\"textarea\">\n\t                <div class=\"tab_contents_list search_history \">\n\t                    <div class=\"tab_contents_item\">\n\t                        <ul>\n\t                        <% history.forEach(function(msg, k){%>\n\t                        \t<li class=\"seller_item clearfix\">\n\t\t                            <a href=\"<%= msg.url%>\" target=\"_blank\" m=\"点击_右侧推荐_浏览历史_<%- buildStrForM() %>_<%= k+1 %>_<%= msg.productId %>\">\n\t                                    <img src=\"<%= msg.imgUrl%>\" data-src=\"<%= msg.imgUrl%>\" style=\"display: block;\">\n\t                                </a>\n\t                                <a href=\"<%= msg.url%>\" target=\"_blank\">\n\t                                    <h6>\n\t                                        <%= msg.title%>\n\t                                    </h6>\n\t                                    \n\t                                </a>\n\t                                <p>\n\t                                    <span class=\"fl\">\n\t                                        <i>¥ <%= msg.price || 0%></i>起\n\t                                    </span>\n\t                                </p>\n                                </li>\n\t                        <%})%>    \n\t                        </ul>\n\t                    </div>\n\t                    <%if(history.length > 5) {%>\n\t                    \t<p class=\"actions\"><i class=\"icon_btn_left\"></i><i class=\"icon_btn_right\"></i></p>\n\t                    <% } %>  \n\t                </div>\n\t            </div>\n\t        </div>\n\t    </div>    \n\t<% } %>  \n\n\t\t\t"
+
+/***/ }),
+/* 32 */
+/*!**********************************************************!*\
+  !*** ./components/searchlist/components/bottom/index.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _ = __webpack_require__(/*! @/common/ejs/2.5.2 */ 0);
+
+var ejs = _interopRequireWildcard(_);
+
+var _bottom = __webpack_require__(/*! ./template/bottom.ejs */ 33);
+
+var _bottom2 = _interopRequireDefault(_bottom);
+
+var _config = __webpack_require__(/*! @/searchlist/config.js */ 6);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+
+var $win = $(window); /* eslint-disable */
+
+var poiShow = $('#poiShow') && $('#poiShow').val() == 'true' ? true : false;
+var catString = $('#catString') && $('#catString').val() != '' ? $('#catString').val() : false;
+var poiName = $('#isClassification') && $('#isClassification').val() == 'true' ? $('#poiName') && $('#poiName').val() != 'false' ? $('#poiName').val() : '' : $('#b_queryKey').val();
+
+exports["default"] = {
+    buildUrl: function buildUrl() {
+        var params = {
+            bookCityCode: $('#bookCity').val(),
+            keyword: $('#b_queryKey').val() ? encodeURIComponent($('#b_queryKey').val()) : null,
+            tabKey: $('#tabKey').val(),
+            poiId: $('#poiId').val(),
+            sourceType: $('#isClassification') && $('#isClassification').val() == 'true' ? '1' : '0',
+            catString: catString
+        };
+        return app_url('search_complex/ajaxGetBottomList?' + (0, _config.queryStringify)(params));
+    },
+    getData: function getData() {
+        var self = this;
+        var url = this.buildUrl();
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function success(response) {
+                if (response.success && response.data && response.data.floors && response.data.floors.length > 0) {
+                    response.data.cityName = poiName || '';
+                    self.render(response.data);
+                    // lazyloadImg($('#bottomList'));
+                    $win.trigger('resize');
+                }
+            }
+        });
+    },
+    render: function render(data) {
+        var html = ejs.compile(_bottom2["default"])({
+            it: data
+        });
+        $('#bottomList').html(html);
+    },
+    init: function init() {
+        if (poiShow) return;
+        this.getData();
+    }
+};
+
+/***/ }),
+/* 33 */
+/*!*********************************************************************!*\
+  !*** ./components/searchlist/components/bottom/template/bottom.ejs ***!
+  \*********************************************************************/
+/*! no static exports found */
+/*! all exports used */
+/***/ (function(module, exports) {
+
+module.exports = "<%\n    var className = '',listTitle = '',imgUrl = '';\n    var typeObj = {\n        6 : {\n            className : 'hotel',\n            listTitle : '酒店',\n            imgUrl : '//m.tuniucdn.com/fb2/t1/G2/M00/EA/80/Cii-T1gcIUeId8rCAAAOVtWsjs8AAEJ4wKBDKQAAA5u989.png'\n        },\n        96 : {\n            className : 'local',\n            listTitle : '当地玩乐',\n            imgUrl : '//m.tuniucdn.com/fb2/t1/G2/M00/EA/80/Cii-TlgcIUaIbuheAAAV7b-uJvIAAEJ4wKBGxIAABYF082.png'\n        },\n        9:{\n            className : 'visa',\n            listTitle : '签证',\n            imgUrl : '//m.tuniucdn.com/fb2/t1/G2/M00/EA/80/Cii-TlgcIUaICeJBAAASyTEehgYAAEJ4wKGLQkAABLh770.png'\n        },\n        10 : {\n            className : 'wifi',\n            listTitle : 'WIFI设备',\n            imgUrl : '//m.tuniucdn.com/fb2/t1/G2/M00/EA/80/Cii-T1gcIUeIdtTGAAAOzoRjw_AAAEJ4wKGP-oAAA7m403.png'\n        },\n        4 : {\n            className : 'ticket',\n            listTitle : '景点',\n            imgUrl : '//m.tuniucdn.com/fb2/t1/G2/M00/EA/80/Cii-T1gcIUeIWKYHAAAPH86EbwEAAEJ4wKBMRcAAA83808.png'\n        }\n    };\n    var isClassification = $('#isClassification') && $('#isClassification').val() == 'true' ? true : false;\n    var parentClassName = $('#parentClassName') && $('#parentClassName').val() != 'null' ? $('#parentClassName').val() : null;\n    var childClassName = $('#childClassName') && $('#childClassName').val() != 'null' ? $('#childClassName').val() : null;\n    var buildStrForM = function(cityName){\n        var m;\n        if(isClassification){\n            if($('#paramType').val() != 3) {\n                m = (parentClassName ? parentClassName + '-': '') + $('#poiName').val();\n            } else {\n                m = childClassName ? childClassName : '';\n            }\n        }else{\n            m = cityName;\n        }\n        return m;\n    }\n%>\n<% if(it.floors && it.floors.length > 0) {%>\n    <% it.floors.forEach(function(groupList, i){%>\n        <%\n            for(var key in typeObj){\n                if(key == groupList.type){\n                    className = typeObj[key].className;\n                    listTitle = typeObj[key].listTitle;\n                    imgUrl = typeObj[key].imgUrl;\n                }\n            }\n        %>\n        <div class=\"galleryblock <%= className%>\" id=\"<%= groupList.type%>\">\n            <div class=\"top clearfix\">\n                <div class=\"productname fl\"><%=it.cityName%>热门<%= listTitle%></div>\n                <% if(groupList.count > 4){%>\n                    <div class=\"moredetail fr\">\n                        <a href=\"<%= groupList.moreDetailUrl.replace(/^(http:|https:)/ig,'')%>\" target=\"_blank\" m=\"点击_底部推荐_<%=listTitle%>_<%=it.cityName%>_更多\">更多<%= listTitle%>&nbsp;&gt;</a>\n                    </div>\n                <%}%>\n            </div>\n\n            <% if(groupList.items && groupList.items.length>0) { %>\n                <% if(groupList.items.length > 3) {%>\n                <!-- 多于3个展示横向列表-->\n                <div class=\"gallery-lists clearfix\">\n                    <ul class=\"gallery-list clearfix current\">\n                        <% groupList.items.forEach(function(pro, p_index){ %>\n                        <% var pClass = p_index == 0 ? 'first' : '' ;%>\n                        <li class=\"gallery-list-item fl <%= pClass%>\">\n                            <a target=\"_blank\" href=\"<%= pro.url.replace(/^(http:|https:)/ig,'')%>\" m=\"点击_底部推荐_<%=listTitle%>_<%- buildStrForM(it.cityName)%>_<%=p_index+1%>_<%=pro.id%>\">\n                                <div class=\"imgblock\">\n                                    <img title=\"<%= pro.name%>\" src=\"<%= pro.picUrl.replace(/^(http:|https:)/ig,'')%>\" style=\"display: inline;\">\n                                    <% if(className == 'hotel' && pro.label && pro.label!= ''){%>\n                                        <i class=\"corner\"><%= pro.label%></i>\n                                    <%}%>\n\n                                    <div class=\"dess_bg\"></div>\n                                    <% var proName = pro.name.length > 25 ? pro.name.slice(0,25)+'...' : pro.name;%>\n                                    <div class=\"dess\"><%= proName%></div>\n                                </div>\n\n                                <div class=\"exter_mess\">\n                                    <div class=\"box p1 clearfix\">\n                                        <% if(className == 'hotel'){%>\n                                            <div class=\"level fl\"><%= pro.starName%></div>\n                                        <%} else {%>\n                                            <div class=\"satisfactionrate fl\">\n                                                <span class=\"text\">满意度</span>\n                                                <%var satisfaction = pro.satisfaction > 0 ? pro.satisfaction : 100; %>\n                                                <span class=\"rate\"><%=  satisfaction%>%</span>\n                                            </div>\n                                        <% } %>\n                                        <div class=\"satisfactionrate fr\">\n                                            <%if(className == 'hotel'){%>\n                                                <%if(pro.score){%>\n                                                    <span class=\"score\"><i><%= pro.score%></i>分</span>\n                                                <%}%>\n                                                <%if( pro.score  && pro.remarkCount != 0){%>|<%}%>\n                                                <%if(pro.remarkCount != 0){%>\n                                                    <span class=\"rated\"><i><%= pro.remarkCount%></i>条评价</span>\n                                                <%}%>\n                                            <% }else {%>    \n                                                <span class=\"rated\">\n                                                    <% if(pro.remarkCount != 0){%>\n                                                        <i><%= pro.remarkCount %></i>条评价\n                                                    <%} else if( pro.travelNum != 0){%>\n                                                        <i><%= pro.travelNum %></i>人出游\n                                                    <%} else {%>\n                                                        新产品\n                                                    <%}%>\n                                                </span>\n                                            <%}%>\n                                        </div>\n                                    </div>\n                                    <div class=\"box clearfix\">\n                                        <%if(className == 'ticket'){%>\n                                            <div class=\"name fl\"><i class=\"ticket_icon\"></i>门票</div>\n                                        <%}%>\n                                        <div class=\"price fr\">\n                                            <span class=\"unit\">&yen;</span><span class=\"num\"><%= pro.price %></span><span class=\"text\">起</span>\n                                        </div>\n                                    </div>\n                                </div>\n                            </a>\n                        </li>\n                        <% }) %>\n                    </ul>\n                </div>\n                <!--少于等于3个，展示纵向小列表-->\n                <%} else if(groupList.items.length == 1){%>\n                    <%var pro = groupList.items[0];%>\n                    <div class=\"gallery-list-shu single\">\n                        <div class=\"gallery-flag\">\n                            <img src=\"<%=imgUrl%>\" alt=\"途牛图片\" />\n                        </div>\n                        <a class=\"gallery-list clearfix\" href=\"<%= pro.url.replace(/^(http:|https:)/ig,'')%>\" target=\"_blank\" m=\"点击_底部推荐_<%=listTitle%>_<%-buildStrForM(it.cityName)%>_1_<%=pro.id%>\">\n                            <div class=\"titleLimit\">\n                                <span class=\"title\" title=\"<%= pro.name%>\">\n                                    <% var proName = pro.name.length > 25 ? pro.name.slice(0,25)+'...' : pro.name;%>\n                                    <%=proName%>\n                                </span>\n                                <%if(className == 'hotel' && pro.label && pro.label!= ''){%>\n                                    <% var label = pro.label.length > 10 ? pro.label.slice(0,10)+'...' : pro.label;%>\n                                    <span class=\"position\"><%= label%></span>\n                                <%}%>\n                            </div>\n                            <%if(className == 'hotel'){%>\n                                <span class=\"level\"><%= pro.starName%></span>\n                            <%}%>\n\n                            <%if(className == 'hotel'){%>\n                                <%if(pro.score){%>\n                                    <span class=\"score\">\n                                        <i><%= pro.score%></i>分<%if( pro.remarkCount != 0){%> |<%}%>\n                                    </span>\n                                <%}%>\n\n                                <%if(pro.remarkCount != 0){%>\n                                    <span class=\"rated\"><i><%= pro.remarkCount%></i>条评价</span>\n                                <%}%>\n                            <%} else {%>\n                                <%var satisfaction = pro.satisfaction > 0 ? pro.satisfaction : 100; %>\n                                <span class=\"satisfaction\"><i><%= satisfaction%>%</i>满意 |</span>\n                                <span class=\"rated\">\n                                    <%if(pro.remarkCount != 0){%>\n                                        <i><%= pro.remarkCount %></i>条评价\n                                    <%} else if(pro.travelNum != 0){%>\n                                            <i><%= pro.travelNum %></i>人出游\n                                    <%} else {%>\n                                        新产品\n                                    <%}%>\n                                </span>\n                            <%}%>\n                            <div class=\"price fr\">\n                                <span class=\"unit\">&yen;</span><span class=\"num\"><%= pro.price%></span><span class=\"text\">起</span>\n                            </div>\n                        </a>\n                    </div>\n                <%} else {%>\n                <div class=\"gallery-list-shu\">\n                    <div class=\"gallery-flag\">\n                        <img src=\"<%=imgUrl%>\" alt=\"途牛图片\" />\n                    </div>\n                    <% groupList.items.forEach(function(pro, l_index){%>\n                        <% var pClass = l_index == 0 ? 'first' : '' ;%>\n                        <a class=\"gallery-list clearfix <%=pClass%>\" href=\"<%= pro.url.replace(/^(http:|https:)/ig,'')%>\" target=\"_blank\" m=\"点击_底部推荐_<%=listTitle%>_<%- buildStrForM(it.cityName)%>_<%=l_index+1%>_<%=pro.id%>\">\n                            <div class=\"titleLimit\">\n                                <span class=\"title\" title=\"<%= pro.name%>\">\n                                    <% var proName = pro.name.length > 25 ? pro.name.slice(0,25)+'...' : pro.name;%>\n                                    <%= proName%>\n                                </span>\n                                <%if(className == 'hotel' && pro.label && pro.label!= '' && !pro.isAbroad){%>\n                                    <% var label = pro.label.length > 10 ? pro.label.slice(0,10)+'...' : pro.label;%>\n                                    <span class=\"position\"><%= label%></span>\n                                <%}%>\n                            </div>\n                            <%if(className == 'hotel'){%>\n                                <span class=\"level\"><%= pro.starName%></span>\n                            <%}%>\n                            <%if(className == 'hotel'){%>\n                                <%if(pro.score){%>\n                                    <span class=\"score\"><i><%= pro.score%></i>分<%if(pro.remarkCount != 0){%> |<%}%>\n                                    </span>\n                                <%}%>\n                                <%if(pro.remarkCount != 0){%>\n                                    <span class=\"rated\"><i><%= pro.remarkCount%></i>条评价</span>\n                                <%}%>\n                            <%} else {%>\n                                <%var satisfaction = pro.satisfaction > 0 ? pro.satisfaction : 100; %>\n                                <span class=\"satisfaction\"><i><%= satisfaction%>%</i>满意 |</span>\n                                <span class=\"rated\">\n                                    <%if(pro.remarkCount != 0){%>\n                                        <i><%= pro.remarkCount %></i>条评价\n                                    <%} else if(pro.travelNum != 0){%>\n                                            <i><%= pro.travelNum%></i>人出游\n                                    <%} else {%>\n                                        新产品\n                                    <%}%>\n                                 </span>\n                             <% } %>\n                            <div class=\"price fr\">\n                                <span class=\"unit\">&yen;</span><span class=\"num\"><%= pro.price%></span><span class=\"text\">起</span>\n                            </div>\n                        </a>\n                    <%})%>\n                </div>\n                <% } %>\n            <% } %>\n\n        </div>\n    <% }) %>\n<% } %>\n\n"
+
+/***/ })
+/******/ ]);

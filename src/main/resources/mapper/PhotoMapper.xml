@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.travel.mapper.PhotoMapper">
+
+<!--
+
+    &lt;!&ndash; 显示所有用户（包含管理员） &ndash;&gt;
+    <select id="listAllPhoto" parameterType="com.qf.travel.vo.PhotoVo" resultType="com.qf.travel.vo.PhotoVo">
+        SELECT * FROM t_backstageuser WHERE username = #{username} and password = #{password};
+    </select>
+
+    &lt;!&ndash;增加图片&ndash;&gt;
+    <insert id="addPhoto" parameterType="com.qf.travel.vo.PhotoVo">
+
+    </insert>
+
+    &lt;!&ndash; 删除图片 &ndash;&gt;
+    <update id="delPhoto" parameterType="com.qf.travel.vo.PhotoVo">
+        update
+    </update>
+
+
+    &lt;!&ndash;批量删除图片&ndash;&gt;
+    <insert id="delPhotos" parameterType="com.qf.travel.vo.PhotoVo">
+
+    </insert>
+
+    &lt;!&ndash;修改图片&ndash;&gt;
+    <update id="updatePhoto" parameterType="com.qf.travel.vo.PhotoVo">
+
+    </update>
+-->
+
+
+</mapper>
